@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artyom | Dev Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+    <style>
+        :root {
+            --base: #303446;
+            --surface0: #414559;
+            --surface1: #51576d;
+            --overlay0: #737994;
+            --text: #c6d0f5;
+            --subtext0: #a5adce;
+            --lavender: #babbf1;
+            --sapphire: #85c1dc;
+            --red: #e78284;
+            --mauve: #ca9ee6;
+            --green: #a6d189;
+            --teal: #81c8be;
+            --peach: #ef9f76;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #232634;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .card {
+            background-color: var(--base);
+            width: 950px;
+            max-width: 95%;
+            padding: 45px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--surface0);
+        }
+
+        .layout {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .terminal-side, .video-side {
+            flex: 1;
+        }
+
+        .ascii-header {
+            color: var(--subtext0);
+            font-size: 7px;
+            line-height: 1.1;
+            white-space: pre;
+            margin-bottom: 25px;
+            user-select: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .ascii-header.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-grid {
+            margin-bottom: 25px;
+            min-height: 240px;
+        }
+
+        .line {
+            margin-bottom: 4px;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .key {
+            color: var(--teal);
+            min-width: 105px;
+        }
+
+        .value {
+            color: var(--text);
+        }
+
+        .separator {
+            color: var(--overlay0);
+            margin: 10px 0;
+            letter-spacing: -1px;
+        }
+
+        .socials {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            width: fit-content;
+            transition: transform 0.2s, filter 0.2s, opacity 0.3s ease;
+            color: #232634;
+            font-weight: bold;
+            opacity: 0;
+        }
+
+        .btn.visible {
+            opacity: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn-tg { background-color: var(--sapphire); }
+        .btn-yt { background-color: var(--red); }
+        .btn-ms { background-color: var(--mauve); }
+
+        .video-content-wrapper {
+            opacity: 0;
+            transform: scale(0.98) translateY(5px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .video-content-wrapper.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        .video-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            outline: none;
+            background: #000;
+        }
+
+        .external-link {
+            display: block;
+            text-align: center;
+            font-size: 11px;
+            color: var(--overlay0);
+            text-decoration: none;
+            margin-top: 10px;
+        }
+
+        .external-link:hover {
+            color: var(--sapphire);
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            color: var(--sapphire);
+            user-select: none;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .nav-arrow {
+            cursor: pointer;
+            transition: color 0.2s;
+            font-weight: bold;
+            padding: 5px 10px;
+        }
+
+        .nav-arrow:hover {
+            color: var(--lavender);
+        }
+
+        .cursor::after {
+            content: '_';
+            display: inline-block;
+            color: var(--teal);
+            margin-left: 2px;
+            animation: terminal-blink 1s steps(1) infinite;
+        }
+
+        @keyframes terminal-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        @media (max-width: 850px) {
+            .layout { flex-direction: column; }
+            .card { width: 95%; padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="layout">
+            <div class="terminal-side">
+                <div id="header-main" class="ascii-header">
+ _    _ _________  ___  _____ ______ __
+| |  / /  _/ __ \/   | / ___//  _/ //_/
+| | / // // / / / /| | \__ \ / // ,<   
+| |/ // // /_/ / ___ |___/ // // /| |  
+|___/___/_____/_/  |_/____/___/_/ |_|  </div>
+                
+                <div id="typewriter" class="info-grid"></div>
+
+                <div id="socials-block" class="socials">
+                    <a href="https://t.me/ayoneflnx" target="_blank" class="btn btn-tg" id="btn-1">
+                        <i class="fab fa-telegram"></i> ayoneflnx
+                    </a>
+                    <a href="https://youtube.com/@vidasiktch" target="_blank" class="btn btn-yt" id="btn-2">
+                        <i class="fab fa-youtube"></i> vidasiktch
+                    </a>
+                    <a href="https://mastodon.social/@ayonelnx" target="_blank" class="btn btn-ms" id="btn-3">
+                        <i class="fab fa-mastodon"></i> ayonelnx
+                    </a>
+                </div>
+            </div>
+
+            <div id="video-side-block" class="video-side">
+                <div class="video-content-wrapper">
+                    <div id="header-videos" class="ascii-header" style="align-self: flex-end;">
+ _    __________  __________  _____
+| |  / /  _/ __ \/ ____/ __ \/ ___/
+| | / // // / / / __/ / / / /\__ \ 
+| |/ // // /_/ / /___/ /_/ /___/ / 
+|___/___/_____/_____/\____//____/  </div>
+
+                    <!-- Видеоплеер -->
+                    <div class="video-container">
+                        <video id="video-player" controls poster="https://via.placeholder.com/640x360/303446/c6d0f5?text=Loading..."></video>
+                    </div>
+                    <div id="video-info">
+                        <a id="direct-link" target="_blank" class="external-link"></a>
+                    </div>
+
+                    <div class="pagination">
+                        <span class="nav-arrow" onclick="prevPage()">&lt;</span>
+                        <span id="pageIndicator">1 / 2</span>
+                        <span class="nav-arrow" onclick="nextPage()">&gt;</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const videos = [
+            {
+                url: "https://dl.dropboxusercontent.com/scl/fi/jwgrxwvjx4drv6npxtuw0/1018.mp4?rlkey=0glugo9usq3mnrt0j933tpau1&st=buxbr9fl&raw=1", // Пример m3u8
+                poster: "https://img.youtube.com/vi/H6YmfLeNZLc/maxresdefault.jpg",
+                title: "CachyOS"
+            },
+            {
+                url: "https://dl.dropboxusercontent.com/scl/fi/ey3s45gfqhhuxynwkobge/lwnaw.mp4?rlkey=zoj3p8mnpgyrmlfru5gyms0w1&st=8nbgiidl&raw=1", // Пример mp4
+                poster: "https://img.youtube.com/vi/MT0d7aUsJEA/maxresdefault.jpg",
+                title: "Переносной Debian Linux"
+            }
+        ];
+
+        const data = [
+            { k: "Name", v: "Artyom" },
+            { k: "Y.O.", v: "13" },
+            { k: "Country", v: "Belarus" },
+            { k: "Hobbies", v: "Music / Linuxoid / Blog" },
+            { k: "Speak in", v: "RU, EN, BY" },
+            { type: "sep" },
+            { k: "Phone", v: "iPhone 13" },
+            { k: "Laptop", v: "Ideapad Gaming 3 15ACH6" },
+            { k: "OS", v: "ReviOS 11 24H2 & CachyOS" },
+            { k: "Fav dist", v: "Arch, Nix, Cachy, Fedora" }
+        ];
+
+        const container = document.getElementById('typewriter');
+        const videoPlayer = document.getElementById('video-player');
+        const directLink = document.getElementById('direct-link');
+        let currentPage = 1;
+        let hls = null;
+
+        function initVideo(index) {
+            const videoData = videos[index];
+            const source = videoData.url;
+
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
+
+            videoPlayer.pause();
+            videoPlayer.poster = videoData.poster;
+            directLink.href = source;
+
+            if (source.endsWith('.m3u8')) {
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hls.loadSource(source);
+                    hls.attachMedia(videoPlayer);
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoPlayer.src = source;
+                }
+            } else {
+                videoPlayer.src = source;
+            }
+        }
+
+        async function startSequence() {
+            const mainHeader = document.getElementById('header-main');
+            const videosHeader = document.getElementById('header-videos');
+            mainHeader.classList.add('visible');
+            videosHeader.classList.add('visible');
+            
+            initVideo(0);
+
+            await new Promise(r => setTimeout(r, 300));
+            await typeText();
+            await new Promise(r => setTimeout(r, 200));
+
+            const videoWrapper = document.querySelector('.video-content-wrapper');
+            videoWrapper.classList.add('visible');
+            await new Promise(r => setTimeout(r, 400));
+
+            const btnIds = ['btn-1', 'btn-2', 'btn-3'];
+            for (let id of btnIds) {
+                document.getElementById(id).classList.add('visible');
+                await new Promise(r => setTimeout(r, 100)); 
+            }
+        }
+
+        async function typeText() {
+            for (let i = 0; i < data.length; i++) {
+                const item = data[i];
+                const line = document.createElement('div');
+                line.className = 'line';
+
+                if (item.type === 'sep') {
+                    line.innerHTML = `<span class="separator">=====================================</span>`;
+                    container.appendChild(line);
+                } else {
+                    line.innerHTML = `<span class="key">${item.k}</span> <span class="value"></span>`;
+                    container.appendChild(line);
+                    
+                    const valueSpan = line.querySelector('.value');
+                    for (let char of item.v) {
+                        valueSpan.textContent += char;
+                        await new Promise(r => setTimeout(r, 15)); 
+                    }
+                }
+                await new Promise(r => setTimeout(r, 30));
+            }
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            if (container.lastChild) container.lastChild.appendChild(cursor);
+        }
+
+        function updateUI() {
+            initVideo(currentPage - 1);
+            document.getElementById('pageIndicator').textContent = `${currentPage} / ${videos.length}`;
+        }
+
+        function nextPage() {
+            if (currentPage < videos.length) { currentPage++; updateUI(); }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) { currentPage--; updateUI(); }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'ArrowLeft') prevPage();
+        });
+
+        window.onload = startSequence;
+    </script>
+</body>
+</html>
