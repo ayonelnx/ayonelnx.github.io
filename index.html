@@ -1,29 +1,13 @@
-<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AyPortfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
     <style>
-        :root {
-            --base: #303446;
-            --surface0: #414559;
-            --surface1: #51576d;
-            --overlay0: #737994;
-            --text: #c6d0f5;
-            --subtext0: #a5adce;
-            --lavender: #babbf1;
-            --sapphire: #85c1dc;
-            --red: #e78284;
-            --mauve: #ca9ee6;
-            --green: #a6d189;
-            --teal: #81c8be;
-            --peach: #ef9f76;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -31,382 +15,355 @@
         }
 
         body {
-            background-color: #232634;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Google Sans', sans-serif;
+            background: linear-gradient(180deg, #1a0f0a 0%, #2d1a12 50%, #3d2418 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            color: var(--text);
             overflow-x: hidden;
-        }
-
-        .card {
-            background-color: var(--base);
-            width: 950px;
-            max-width: 95%;
-            padding: 45px;
-            border-radius: 30px;
             position: relative;
-            overflow: hidden;
-            border: 1px solid var(--surface0);
         }
 
-        .layout {
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.15) 2px,
+                rgba(0,0,0,0.15) 4px
+            );
+            pointer-events: none;
+        }
+
+        .profile-card {
+            background: rgba(33, 33, 33, 0.8);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
             display: flex;
             gap: 40px;
             align-items: flex-start;
-        }
-
-        .terminal-side, .video-side {
-            flex: 1;
-        }
-
-        .ascii-header {
-            color: var(--subtext0);
-            font-size: 7px;
-            line-height: 1.1;
-            white-space: pre;
-            margin-bottom: 25px;
-            user-select: none;
             opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: translateY(30px) scale(0.95);
+            animation: cardAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            position: relative;
+            z-index: 1;
         }
 
-        .ascii-header.visible {
-            opacity: 1;
-            transform: translateY(0);
+        @keyframes cardAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
-        .info-grid {
-            margin-bottom: 25px;
-            min-height: 240px;
+        .avatar-section {
+            flex-shrink: 0;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: avatarAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
         }
 
-        .line {
-            margin-bottom: 4px;
-            display: flex;
-            align-items: baseline;
+        @keyframes avatarAppear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        .key {
-            color: var(--teal);
-            min-width: 105px;
+        .avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .value {
-            color: var(--text);
+        .avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .separator {
-            color: var(--overlay0);
-            margin: 10px 0;
-            letter-spacing: -1px;
+        .info-section {
+            flex: 1;
+            color: #ffffff;
         }
 
-        .socials {
+        .name {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.5s ease 0.4s forwards;
+        }
+
+        .name .highlight {
+            color: #ff8c42;
+	    font-size: 32px;
+        }
+
+        .info-list {
+            list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
         }
 
-        .btn {
-            display: inline-flex;
+        .info-item {
+            display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 7px 16px;
-            border-radius: 12px;
+            gap: 12px;
+            font-size: 16px;
+            color: #e0e0e0;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .info-item:nth-child(1) { animation-delay: 0.5s; }
+        .info-item:nth-child(2) { animation-delay: 0.6s; }
+        .info-item:nth-child(3) { animation-delay: 0.7s; }
+        .info-item:nth-child(4) { animation-delay: 0.8s; }
+        .info-item:nth-child(5) { animation-delay: 0.9s; }
+        .info-item:nth-child(6) { animation-delay: 1.0s; }
+        .info-item:nth-child(7) { animation-delay: 1.1s; }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .info-item i {
+            width: 24px;
+            text-align: center;
+            color: #ffffff;
+            font-size: 18px;
+        }
+
+        .arch-link {
+            color: inherit;
             text-decoration: none;
-            font-size: 14px;
-            width: fit-content;
-            transition: transform 0.2s, filter 0.2s, opacity 0.3s ease;
-            color: #232634;
-            font-weight: bold;
-            opacity: 0;
-        }
-
-        .btn.visible {
-            opacity: 1;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
-
-        .btn-tg { background-color: var(--sapphire); }
-        .btn-yt { background-color: var(--red); }
-        .btn-ms { background-color: var(--mauve); }
-
-        .video-content-wrapper {
-            opacity: 0;
-            transform: scale(0.98) translateY(5px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .video-content-wrapper.visible {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-        .video-container {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-bottom: 5px;
+            transition: color 0.3s ease;
+            cursor: pointer;
             position: relative;
         }
 
-        video {
-            width: 100%;
-            height: 100%;
-            display: block;
-            outline: none;
-            background: #000;
+        .arch-link:hover {
+            color: #ff8c42;
         }
 
-        .external-link {
-            display: block;
-            text-align: center;
-            font-size: 11px;
-            color: var(--overlay0);
-            text-decoration: none;
-            margin-top: 10px;
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideIn 0.5s ease 1.2s forwards;
         }
 
-        .external-link:hover {
-            color: var(--sapphire);
-        }
-
-        .pagination {
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-top: 15px;
-            color: var(--sapphire);
-            user-select: none;
             justify-content: center;
-            font-size: 14px;
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .nav-arrow {
-            cursor: pointer;
-            transition: color 0.2s;
-            font-weight: bold;
-            padding: 5px 10px;
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .nav-arrow:hover {
-            color: var(--lavender);
+        .social-btn:hover {
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .cursor::after {
-            content: '_';
-            display: inline-block;
-            color: var(--teal);
-            margin-left: 2px;
-            animation: terminal-blink 1s steps(1) infinite;
+        .social-btn:hover::before {
+            opacity: 1;
         }
 
-        @keyframes terminal-blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        .social-btn.youtube {
+            background: #ff4444;
         }
 
-        .page { display: none; }
-        .page.active { display: block; }
+        .social-btn.telegram {
+            background: #0088cc;
+        }
 
-        @media (max-width: 850px) {
-            .layout { flex-direction: column; }
-            .card { width: 95%; padding: 25px; }
+        .social-btn.discord {
+            background: #5865F2;
+        }
+
+        .social-btn:active {
+            transform: translateY(-1px) scale(1.05);
+        }
+
+        @media (max-width: 640px) {
+            .profile-card {
+                flex-direction: column;
+                align-items: center;
+                padding: 30px 20px;
+                gap: 30px;
+            }
+
+            .avatar {
+                width: 150px;
+                height: 150px;
+            }
+
+            .name {
+                font-size: 28px;
+                text-align: center;
+            }
+
+            .info-section {
+                width: 100%;
+            }
+
+            .info-list {
+                gap: 10px;
+            }
+
+            .info-item {
+                font-size: 14px;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-
-    <div class="card">
-        <div class="layout">
-            <div class="terminal-side">
-                <div id="header-main" class="ascii-header">
- _    _ _________  ___  _____ ______ __
-| |  / /  _/ __ \/   | / ___//  _/ //_/
-| | / // // / / / /| | \__ \ / // ,<   
-| |/ // // /_/ / ___ |___/ // // /| |  
-|___/___/_____/_/  |_/____/___/_/ |_|  </div>
-                
-                <div id="typewriter" class="info-grid"></div>
-
-                <div id="socials-block" class="socials">
-                    <a href="https://t.me/ayoneflnx" target="_blank" class="btn btn-tg" id="btn-1">
-                        <i class="fab fa-telegram"></i> ayoneflnx
+    <div class="profile-card">
+        <div class="avatar-section">
+            <img src="https://raw.githubusercontent.com/ayonelnx/ayonelnx.github.io/refs/heads/main/ava.png" alt="Avatar" class="avatar">
+        </div>
+        
+        <div class="info-section">
+            <h1 class="name">Vidasik<span class="highlight"> &lt;/&gt;</span></h1>
+            
+            <ul class="info-list">
+                <li class="info-item">
+                    <i class="far fa-clock"></i>
+                    <span>13 y.o.</span>
+                </li>
+                <li class="info-item">
+                    <i class="far fa-map"></i>
+                    <span>Belarus</span>
+                </li>
+                <li class="info-item">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Linuxoid, Music, Design</span>
+                </li>
+                <li class="info-item">
+                    <i class="fas fa-users"></i>
+                    <span>Russian, English, Belarusian</span>
+                </li>
+                <li class="info-item">
+                    <i class="fas fa-desktop"></i>
+                    <a>
+                        CachyOS + ReviOS 25H2
                     </a>
-                    <a href="https://youtube.com/@vidasiktch" target="_blank" class="btn btn-yt" id="btn-2">
-                        <i class="fab fa-youtube"></i> vidasiktch
-                    </a>
-                    <a href="https://mastodon.social/@ayonelnx" target="_blank" class="btn btn-ms" id="btn-3">
-                        <i class="fab fa-mastodon"></i> ayonelnx
-                    </a>
-                </div>
-            </div>
+                </li>
+                <li class="info-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>iPhone 13 · Redmi Note 8</span>
+                </li>
+                <li class="info-item">
+                    <i class="fas fa-laptop"></i>
+                    <span>Lenovo Ideapad Gaming 3 (82K2)</span>
+                </li>
+            </ul>
 
-            <div id="video-side-block" class="video-side">
-                <div class="video-content-wrapper">
-                    <div id="header-videos" class="ascii-header" style="align-self: flex-end;">
- _    __________  __________  _____
-| |  / /  _/ __ \/ ____/ __ \/ ___/
-| | / // // / / / __/ / / / /\__ \ 
-| |/ // // /_/ / /___/ /_/ /___/ / 
-|___/___/_____/_____/\____//____/  </div>
-
-                    <!-- Видеоплеер -->
-                    <div class="video-container">
-                        <video id="video-player" controls poster="https://via.placeholder.com/640x360/303446/c6d0f5?text=Loading..."></video>
-                    </div>
-                    <div id="video-info">
-                        <a id="direct-link" target="_blank" class="external-link"></a>
-                    </div>
-
-                    <div class="pagination">
-                        <span class="nav-arrow" onclick="prevPage()">&lt;</span>
-                        <span id="pageIndicator">1 / 2</span>
-                        <span class="nav-arrow" onclick="nextPage()">&gt;</span>
-                    </div>
-                </div>
+            <div class="social-links">
+                <a href="https://youtube.com/@VidasikTCH" target="_blank" class="social-btn youtube" title="YouTube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://t.me/ayoneflnx" target="_blank" class="social-btn telegram" title="Telegram">
+                    <i class="fab fa-telegram-plane"></i>
+                </a>
+                <a href="https://discord.gg/NzFtENBpgp" target="_blank" class="social-btn discord" title="Discord">
+                    <i class="fab fa-discord"></i>
+                </a>
             </div>
         </div>
     </div>
 
     <script>
-        const videos = [
-            {
-                url: "https://dl.dropboxusercontent.com/scl/fi/jwgrxwvjx4drv6npxtuw0/1018.mp4?rlkey=0glugo9usq3mnrt0j933tpau1&st=buxbr9fl&raw=1", // Пример m3u8
-                poster: "https://img.youtube.com/vi/H6YmfLeNZLc/maxresdefault.jpg",
-                title: "CachyOS"
-            },
-            {
-                url: "https://dl.dropboxusercontent.com/scl/fi/ey3s45gfqhhuxynwkobge/lwnaw.mp4?rlkey=zoj3p8mnpgyrmlfru5gyms0w1&st=8nbgiidl&raw=1", // Пример mp4
-                poster: "https://img.youtube.com/vi/MT0d7aUsJEA/maxresdefault.jpg",
-                title: "Переносной Debian Linux"
-            }
-        ];
-
-        const data = [
-            { k: "Name", v: "Artyom" },
-            { k: "Y.O.", v: "13" },
-            { k: "Country", v: "Belarus" },
-            { k: "Hobbies", v: "Music / Linuxoid / Blog" },
-            { k: "Speak in", v: "RU, EN, BY" },
-            { type: "sep" },
-            { k: "Phone", v: "iPhone 13" },
-            { k: "Laptop", v: "Ideapad Gaming 3 15ACH6" },
-            { k: "OS", v: "ReviOS 11 24H2 & CachyOS" },
-            { k: "Fav dist", v: "Arch, Nix, Cachy, Fedora" }
-        ];
-
-        const container = document.getElementById('typewriter');
-        const videoPlayer = document.getElementById('video-player');
-        const directLink = document.getElementById('direct-link');
-        let currentPage = 1;
-        let hls = null;
-
-        function initVideo(index) {
-            const videoData = videos[index];
-            const source = videoData.url;
-
-            if (hls) {
-                hls.destroy();
-                hls = null;
-            }
-
-            videoPlayer.pause();
-            videoPlayer.poster = videoData.poster;
-            directLink.href = source;
-
-            if (source.endsWith('.m3u8')) {
-                if (Hls.isSupported()) {
-                    hls = new Hls();
-                    hls.loadSource(source);
-                    hls.attachMedia(videoPlayer);
-                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                    videoPlayer.src = source;
-                }
-            } else {
-                videoPlayer.src = source;
-            }
-        }
-
-        async function startSequence() {
-            const mainHeader = document.getElementById('header-main');
-            const videosHeader = document.getElementById('header-videos');
-            mainHeader.classList.add('visible');
-            videosHeader.classList.add('visible');
-            
-            initVideo(0);
-
-            await new Promise(r => setTimeout(r, 300));
-            await typeText();
-            await new Promise(r => setTimeout(r, 200));
-
-            const videoWrapper = document.querySelector('.video-content-wrapper');
-            videoWrapper.classList.add('visible');
-            await new Promise(r => setTimeout(r, 400));
-
-            const btnIds = ['btn-1', 'btn-2', 'btn-3'];
-            for (let id of btnIds) {
-                document.getElementById(id).classList.add('visible');
-                await new Promise(r => setTimeout(r, 100)); 
-            }
-        }
-
-        async function typeText() {
-            for (let i = 0; i < data.length; i++) {
-                const item = data[i];
-                const line = document.createElement('div');
-                line.className = 'line';
-
-                if (item.type === 'sep') {
-                    line.innerHTML = `<span class="separator">=====================================</span>`;
-                    container.appendChild(line);
-                } else {
-                    line.innerHTML = `<span class="key">${item.k}</span> <span class="value"></span>`;
-                    container.appendChild(line);
-                    
-                    const valueSpan = line.querySelector('.value');
-                    for (let char of item.v) {
-                        valueSpan.textContent += char;
-                        await new Promise(r => setTimeout(r, 15)); 
-                    }
-                }
-                await new Promise(r => setTimeout(r, 30));
-            }
-            const cursor = document.createElement('span');
-            cursor.className = 'cursor';
-            if (container.lastChild) container.lastChild.appendChild(cursor);
-        }
-
-        function updateUI() {
-            initVideo(currentPage - 1);
-            document.getElementById('pageIndicator').textContent = `${currentPage} / ${videos.length}`;
-        }
-
-        function nextPage() {
-            if (currentPage < videos.length) { currentPage++; updateUI(); }
-        }
-
-        function prevPage() {
-            if (currentPage > 1) { currentPage--; updateUI(); }
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextPage();
-            if (e.key === 'ArrowLeft') prevPage();
+        document.addEventListener('mousemove', (e) => {
+            const card = document.querySelector('.profile-card');
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
         });
 
-        window.onload = startSequence;
+        document.addEventListener('mouseleave', () => {
+            const card = document.querySelector('.profile-card');
+            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        });
+
+        document.querySelectorAll('.social-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                ripple.style.background = 'rgba(255,255,255,0.5)';
+                ripple.style.borderRadius = '50%';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = (e.clientX - rect.left) + 'px';
+                ripple.style.top = (e.clientY - rect.top) + 'px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    width: 100px;
+                    height: 100px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
