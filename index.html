@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -5,215 +6,504 @@
     <title>Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..800&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ============================================================
+           MATERIAL 3 (Material You) — тёмная схема
+           ============================================================ */
+        :root {
+            /* M3 baseline тёмные тона (purple) */
+            --m3-primary: #D0BCFF;
+            --m3-on-primary: #381E72;
+            --m3-primary-container: #4F378B;
+            --m3-on-primary-container: #EADDFF;
+            --m3-secondary-container: #4A4458;
+            --m3-on-secondary-container: #E8DEF8;
+            --m3-surface: #141218;
+            --m3-surface-container-low: #1D1B20;
+            --m3-surface-container: #211F26;
+            --m3-surface-container-high: #2B2930;
+            --m3-surface-container-highest: #36343B;
+            --m3-on-surface: #E6E0E9;
+            --m3-on-surface-variant: #CAC4D0;
+            --m3-outline: #938F99;
+            --m3-outline-variant: #49454F;
+            --m3-elevation-1: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+            --m3-elevation-2: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
+            --m3-elevation-3: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15);
+            --m3-shape-l: 28px;
+            --m3-shape-m: 20px;
+            --m3-shape-s: 12px;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: 'Google Sans', sans-serif;
-            background: linear-gradient(180deg, #1a0f0a 0%, #2d1a12 50%, #3d2418 100%);
+            font-family: "Roboto Flex", "Google Sans", system-ui, sans-serif;
+            background: var(--m3-surface);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
             position: relative;
+            color: var(--m3-on-surface);
         }
 
-        body::before {
+        /* ============================================================
+           АНИМИРОВАННЫЙ ФОН — плавающие M3-градиентные пятна
+           ============================================================ */
+        .bg-scene {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.5;
+            will-change: transform;
+        }
+
+        .blob-1 {
+            width: 55vmax; height: 55vmax;
+            top: -20vmax; left: -15vmax;
+            background: radial-gradient(circle at 40% 40%, #7F67BE, #4F378B 60%, transparent 75%);
+            animation: drift1 26s ease-in-out infinite alternate;
+        }
+
+        .blob-2 {
+            width: 45vmax; height: 45vmax;
+            bottom: -18vmax; right: -12vmax;
+            background: radial-gradient(circle at 60% 60%, #0E6F9E, #3755A0 55%, transparent 75%);
+            animation: drift2 32s ease-in-out infinite alternate;
+        }
+
+        .blob-3 {
+            width: 35vmax; height: 35vmax;
+            top: 35%; left: 45%;
+            background: radial-gradient(circle at 50% 50%, #984061, #633B48 55%, transparent 75%);
+            opacity: 0.35;
+            animation: drift3 22s ease-in-out infinite alternate;
+        }
+
+        @keyframes drift1 {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(9vmax, 6vmax) scale(1.15); }
+            100% { transform: translate(-4vmax, 10vmax) scale(0.95); }
+        }
+
+        @keyframes drift2 {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(-8vmax, -7vmax) scale(1.1); }
+            100% { transform: translate(5vmax, -11vmax) scale(1.2); }
+        }
+
+        @keyframes drift3 {
+            0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(-10vmax, 6vmax) scale(1.25) rotate(40deg); }
+        }
+
+        /* тонкое зерно поверх пятен — глубина Material You */
+        .bg-scene::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: repeating-linear-gradient(
-                90deg,
-                transparent,
-                transparent 2px,
-                rgba(0,0,0,0.15) 2px,
-                rgba(0,0,0,0.15) 4px
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                0deg,
+                rgba(255,255,255,0.015) 0px,
+                rgba(255,255,255,0.015) 1px,
+                transparent 1px,
+                transparent 3px
             );
             pointer-events: none;
         }
 
+        /* ============================================================
+           КАРТОЧКА ПРОФИЛЯ
+           ============================================================ */
         .profile-card {
-            background: rgba(33, 33, 33, 0.8);
-            border-radius: 24px;
+            background: color-mix(in srgb, var(--m3-surface-container-high) 82%, transparent);
+            backdrop-filter: blur(20px) saturate(1.3);
+            -webkit-backdrop-filter: blur(20px) saturate(1.3);
+            border-radius: var(--m3-shape-l);
+            box-shadow: var(--m3-elevation-2);
             padding: 40px;
             max-width: 800px;
             width: 90%;
             display: flex;
             gap: 40px;
             align-items: flex-start;
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-            animation: cardAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             position: relative;
             z-index: 1;
+            opacity: 0;
+            transform: translateY(28px) scale(0.97);
+            animation: cardAppear 0.55s cubic-bezier(0.2, 0, 0, 1) forwards;
+            transition: box-shadow 0.3s ease;
         }
 
+        .profile-card:hover { box-shadow: var(--m3-elevation-3); }
+
         @keyframes cardAppear {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .avatar-section {
             flex-shrink: 0;
             opacity: 0;
-            transform: scale(0.8);
-            animation: avatarAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+            transform: scale(0.85);
+            animation: avatarAppear 0.5s cubic-bezier(0.2, 0, 0, 1) 0.12s forwards;
         }
 
         @keyframes avatarAppear {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .avatar {
             width: 200px;
             height: 200px;
-            border-radius: 20px;
+            border-radius: var(--m3-shape-m);
             object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--m3-elevation-2);
+            transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s ease;
         }
 
         .avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(1.03);
+            box-shadow: var(--m3-elevation-3);
         }
 
-        .info-section {
-            flex: 1;
-            color: #ffffff;
-        }
+        .info-section { flex: 1; min-width: 0; }
 
         .name {
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: -0.5px;
             opacity: 0;
-            transform: translateX(-20px);
-            animation: slideIn 0.5s ease 0.4s forwards;
+            transform: translateX(-14px);
+            animation: slideIn 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+            animation-delay: 0.25s;
         }
 
         .name .highlight {
-            color: #ff8c42;
-	    font-size: 32px;
+            color: var(--m3-primary);
+            font-size: 28px;
+            font-weight: 500;
         }
 
         .info-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .info-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 16px;
-            color: #e0e0e0;
+            gap: 14px;
+            font-size: 15px;
+            color: var(--m3-on-surface-variant);
+            padding: 7px 10px;
+            border-radius: var(--m3-shape-s);
             opacity: 0;
-            transform: translateX(-20px);
-            animation: slideIn 0.5s ease forwards;
+            transform: translateX(-14px);
+            animation: slideIn 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+            transition: background 0.2s ease;
         }
 
-        .info-item:nth-child(1) { animation-delay: 0.5s; }
-        .info-item:nth-child(2) { animation-delay: 0.6s; }
-        .info-item:nth-child(3) { animation-delay: 0.7s; }
-        .info-item:nth-child(4) { animation-delay: 0.8s; }
-        .info-item:nth-child(5) { animation-delay: 0.9s; }
-        .info-item:nth-child(6) { animation-delay: 1.0s; }
-        .info-item:nth-child(7) { animation-delay: 1.1s; }
+        .info-item:hover { background: rgba(208, 188, 255, 0.07); }
+
+        .info-item:nth-child(1) { animation-delay: 0.35s; }
+        .info-item:nth-child(2) { animation-delay: 0.42s; }
+        .info-item:nth-child(3) { animation-delay: 0.49s; }
+        .info-item:nth-child(4) { animation-delay: 0.56s; }
+        .info-item:nth-child(5) { animation-delay: 0.63s; }
+        .info-item:nth-child(6) { animation-delay: 0.70s; }
+        .info-item:nth-child(7) { animation-delay: 0.77s; }
 
         @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .info-item i {
             width: 24px;
             text-align: center;
-            color: #ffffff;
-            font-size: 18px;
+            color: var(--m3-primary);
+            font-size: 16px;
         }
 
-        .arch-link {
-            color: inherit;
-            text-decoration: none;
-            transition: color 0.3s ease;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .arch-link:hover {
-            color: #ff8c42;
-        }
-
+        /* ============================================================
+           СОЦСЕТИ — M3 tonal-кнопки
+           ============================================================ */
         .social-links {
             display: flex;
-            gap: 12px;
-            margin-top: 24px;
+            gap: 10px;
+            margin-top: 26px;
+            flex-wrap: wrap;
             opacity: 0;
             transform: translateY(10px);
-            animation: slideIn 0.5s ease 1.2s forwards;
+            animation: slideIn 0.4s cubic-bezier(0.2, 0, 0, 1) 0.9s forwards;
+        }
+
+        .m3-btn {
+            position: relative;
+            overflow: hidden;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+            transition: box-shadow 0.25s ease, background 0.25s ease, transform 0.15s ease;
+        }
+
+        /* Ripple (M3-эффект волны) */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.18;
+            transform: scale(0);
+            pointer-events: none;
+            animation: rippleAnim 0.55s ease-out forwards;
+        }
+
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
         }
 
         .social-btn {
+            background: var(--m3-secondary-container);
+            color: var(--m3-on-secondary-container);
+        }
+
+        .social-btn:hover { box-shadow: var(--m3-elevation-1); }
+        .social-btn:active { transform: scale(0.95); }
+
+        /* FAB для доната */
+        .fab {
+            background: var(--m3-primary-container);
+            color: var(--m3-on-primary-container);
+            box-shadow: var(--m3-elevation-2);
+        }
+
+        .fab:hover { box-shadow: var(--m3-elevation-3); transform: translateY(-2px); }
+        .fab:active { transform: translateY(0) scale(0.95); }
+
+        /* ============================================================
+           M3 DIALOG — окно донатов
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--m3-surface-container-high);
+            border-radius: var(--m3-shape-l);
+            box-shadow: var(--m3-elevation-3);
+            width: min(480px, calc(100vw - 32px));
+            max-height: calc(100vh - 64px);
+            overflow-y: auto;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.25s ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 22px 14px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--m3-on-surface);
+        }
+
+        .modal-title .title-icon {
             width: 40px;
             height: 40px;
+            border-radius: 50%;
+            background: var(--m3-primary-container);
+            color: var(--m3-on-primary-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--m3-on-surface-variant);
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover { background: rgba(208, 188, 255, 0.12); }
+
+        .modal-body {
+            padding: 6px 22px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .modal-hint {
+            font-size: 14px;
+            color: var(--m3-on-surface-variant);
+            padding: 0 4px 6px;
+        }
+
+        /* строка крипты — M3 list item */
+        .crypto-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 14px;
+            border-radius: var(--m3-shape-m);
+            background: var(--m3-surface-container-highest);
+            transition: background 0.2s ease;
+        }
+
+        .crypto-row:hover { background: color-mix(in srgb, var(--m3-surface-container-highest) 75%, var(--m3-primary) 25%); }
+
+        .crypto-icon {
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
-            color: white;
-            font-size: 18px;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 20px;
+            flex-shrink: 0;
+            color: #fff;
+            box-shadow: var(--m3-elevation-1);
+        }
+
+        .crypto-icon.eth  { background: linear-gradient(135deg, #627eea, #3c5ce0); }
+        .crypto-icon.btc  { background: linear-gradient(135deg, #f7931a, #d97a06); }
+        .crypto-icon.base { background: linear-gradient(135deg, #0052ff, #0033a3); font-size: 15px; font-weight: 700; }
+
+        .crypto-info { flex: 1; min-width: 0; }
+
+        .crypto-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--m3-on-surface);
+            margin-bottom: 3px;
+        }
+
+        .crypto-addr {
+            font-size: 12px;
+            color: var(--m3-on-surface-variant);
+            font-family: "Roboto Mono", monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            user-select: all;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--m3-primary);
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
         }
 
-        .social-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+        .icon-btn:hover { background: rgba(208, 188, 255, 0.12); }
+        .icon-btn.copied { color: #7ee787; }
+        .icon-btn.copied:hover { background: rgba(126, 231, 135, 0.12); }
+
+        /* ============================================================
+           M3 SNACKBAR — уведомление о копировании
+           ============================================================ */
+        .snackbar {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--m3-surface-container-highest);
+            color: var(--m3-on-surface);
+            font-size: 14px;
+            padding: 13px 20px;
+            border-radius: 8px;
+            box-shadow: var(--m3-elevation-3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 200;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s ease;
+            pointer-events: none;
         }
 
-        .social-btn:hover {
-            transform: translateY(-3px) scale(1.1);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .social-btn:hover::before {
+        .snackbar.show {
+            transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
 
-        .social-btn:active {
-            transform: translateY(-1px) scale(1.05);
-        }
+        .snackbar i { color: var(--m3-primary); }
 
+        /* ============================================================
+           АДАПТИВ
+           ============================================================ */
         @media (max-width: 640px) {
             .profile-card {
                 flex-direction: column;
@@ -221,146 +511,176 @@
                 padding: 30px 20px;
                 gap: 30px;
             }
-
-            .avatar {
-                width: 150px;
-                height: 150px;
-            }
-
-            .name {
-                font-size: 28px;
-                text-align: center;
-            }
-
-            .info-section {
-                width: 100%;
-            }
-
-            .info-list {
-                gap: 10px;
-            }
-
-            .info-item {
-                font-size: 14px;
-            }
-
-            .social-links {
-                justify-content: center;
-            }
+            .avatar { width: 150px; height: 150px; }
+            .name { font-size: 26px; text-align: center; }
+            .info-section { width: 100%; }
+            .social-links { justify-content: center; }
+            .crypto-addr { white-space: normal; word-break: break-all; }
         }
     </style>
 </head>
 <body>
+    <!-- Анимированный фон -->
+    <div class="bg-scene" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
     <div class="profile-card">
         <div class="avatar-section">
             <img src="https://raw.githubusercontent.com/ayonelnx/ayonelnx.github.io/refs/heads/main/ava.png" alt="Avatar" class="avatar">
         </div>
-        
+
         <div class="info-section">
             <h1 class="name">Ayone<span class="highlight"> &lt;/&gt;</span></h1>
-            
+
             <ul class="info-list">
-                <li class="info-item">
-                    <i class="far fa-clock"></i>
-                    <span>13 y.o.</span>
-                </li>
-                <li class="info-item">
-                    <i class="far fa-map"></i>
-                    <span>Belarus</span>
-                </li>
-                <li class="info-item">
-                    <i class="fas fa-gamepad"></i>
-                    <span>Linuxoid, Music, Design</span>
-                </li>
-                <li class="info-item">
-                    <i class="fas fa-users"></i>
-                    <span>Russian, English, Belarusian</span>
-                </li>
-                <li class="info-item">
-                    <i class="fas fa-desktop"></i>
-                    <a>
-                        CachyOS (Hyprland)
-                    </a>
-                </li>
-                <li class="info-item">
-                    <i class="fas fa-mobile-alt"></i>
-                    <span>iPhone 13 · Redmi Note 8</span>
-                </li>
-                <li class="info-item">
-                    <i class="fas fa-laptop"></i>
-                    <span>Lenovo Ideapad Gaming 3 (82K2)</span>
-                </li>
+                <li class="info-item"><i class="far fa-clock"></i><span>13 y.o.</span></li>
+                <li class="info-item"><i class="far fa-map"></i><span>Belarus</span></li>
+                <li class="info-item"><i class="fas fa-gamepad"></i><span>Linuxoid, Music, Design, Vibecoder, Content-Maker</span></li>
+                <li class="info-item"><i class="fas fa-users"></i><span>Russian, English, Belarusian</span></li>
+                <li class="info-item"><i class="fas fa-desktop"></i><span>Arch GNU/Linux (Plasma 6.8.0)</span></li>
+                <li class="info-item"><i class="fas fa-mobile-alt"></i><span>iPhone 13 · Redmi Note 8</span></li>
+                <li class="info-item"><i class="fas fa-laptop"></i><span>Lenovo Ideapad Gaming 3 (82K2)</span></li>
             </ul>
 
             <div class="social-links">
-                <a href="https://youtube.com/@VidasikTCH" target="_blank" class="social-btn youtube" title="YouTube">
-                    <i class="fab fa-youtube"></i>
-                </a>
-                <a href="https://t.me/ayoneflnx" target="_blank" class="social-btn telegram" title="Telegram">
-                    <i class="fab fa-telegram-plane"></i>
-                </a>
-                <a href="https://discord.gg/NzFtENBpgp" target="_blank" class="social-btn discord" title="Discord">
-                    <i class="fab fa-discord"></i>
-                </a>
-                <a href="https://tiktok.com/@temakonsole" target="_blank" class="social-btn tiktok" title="TikTok">
-                    <i class="fab fa-tiktok"></i>
-                </a>
-                <a href="https://x.com/artemiylnx" target="_blank" class="social-btn twitter" title="X">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="/donate" target="_blank" class="social-btn money" title="Донат">
-                    <i class="fas fa-money-bill"></i>
-                </a>
+                <a href="https://youtube.com/@ayonelinux" target="_blank" class="m3-btn social-btn" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://t.me/ayonelinux" target="_blank" class="m3-btn social-btn" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+                <a href="https://discord.gg/NzFtENBpgp" target="_blank" class="m3-btn social-btn" title="Discord"><i class="fab fa-discord"></i></a>
+                <a href="https://tiktok.com/@ayonelinux" target="_blank" class="m3-btn social-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                <button class="m3-btn fab" id="donateBtn" title="Донат"><i class="fas fa-hand-holding-dollar"></i></button>
             </div>
         </div>
     </div>
 
+    <!-- M3 Dialog: донаты -->
+    <div class="modal-overlay" id="donateModal">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
+            <div class="modal-head">
+                <div class="modal-title" id="donateTitle">
+                    <span class="title-icon"><i class="fas fa-hand-holding-dollar"></i></span>
+                    Поддержать проект
+                </div>
+                <button class="modal-close" id="modalClose" title="Закрыть"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-hint">Нажми на иконку, чтобы скопировать адрес.</p>
+
+                <div class="crypto-row">
+                    <div class="crypto-icon eth"><i class="fab fa-ethereum"></i></div>
+                    <div class="crypto-info">
+                        <div class="crypto-name">Ethereum (ERC20)</div>
+                        <div class="crypto-addr" data-address="0x338B0EBED9fF8092B2c253Fe1bE0B85b8FF8b4E0">0x338B0EBED9fF8092B2c253Fe1bE0B85b8FF8b4E0</div>
+                    </div>
+                    <button class="icon-btn copy-btn" title="Скопировать"><i class="far fa-copy"></i></button>
+                </div>
+
+                <div class="crypto-row">
+                    <div class="crypto-icon btc"><i class="fab fa-btc"></i></div>
+                    <div class="crypto-info">
+                        <div class="crypto-name">Bitcoin (BTC)</div>
+                        <div class="crypto-addr" data-address="bc1qlf3mvk6c3q25l908k2sqq9mg55u7zwxceghfzq">bc1qlf3mvk6c3q25l908k2sqq9mg55u7zwxceghfzq</div>
+                    </div>
+                    <button class="icon-btn copy-btn" title="Скопировать"><i class="far fa-copy"></i></button>
+                </div>
+
+                <div class="crypto-row">
+                    <div class="crypto-icon base">B</div>
+                    <div class="crypto-info">
+                        <div class="crypto-name">Base (ERC20)</div>
+                        <div class="crypto-addr" data-address="0x338B0EBED9fF8092B2c253Fe1bE0B85b8FF8b4E0">0x338B0EBED9fF8092B2c253Fe1bE0B85b8FF8b4E0</div>
+                    </div>
+                    <button class="icon-btn copy-btn" title="Скопировать"><i class="far fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- M3 Snackbar -->
+    <div class="snackbar" id="snackbar">
+        <i class="fas fa-check-circle"></i>
+        <span>Адрес скопирован в буфер обмена</span>
+    </div>
+
     <script>
-        document.addEventListener('mousemove', (e) => {
-            const card = document.querySelector('.profile-card');
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        // ========== RIPPLE-ЭФФЕКТ (M3) ==========
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.m3-btn, .icon-btn, .modal-close');
+            if (!btn) return;
+
+            const rect = btn.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            btn.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
         });
 
-        document.addEventListener('mouseleave', () => {
-            const card = document.querySelector('.profile-card');
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+        // ========== МОДАЛЬНОЕ ОКНО ==========
+        const modal = document.getElementById('donateModal');
+        const donateBtn = document.getElementById('donateBtn');
+        const modalClose = document.getElementById('modalClose');
+
+        function openModal() {
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        donateBtn.addEventListener('click', openModal);
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
         });
 
-        document.querySelectorAll('.social-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                const ripple = document.createElement('span');
-                ripple.style.position = 'absolute';
-                ripple.style.width = '20px';
-                ripple.style.height = '20px';
-                ripple.style.background = 'rgba(255,255,255,0.5)';
-                ripple.style.borderRadius = '50%';
-                ripple.style.transform = 'translate(-50%, -50%)';
-                ripple.style.pointerEvents = 'none';
-                ripple.style.animation = 'ripple 0.6s ease-out';
-                
-                const rect = this.getBoundingClientRect();
-                ripple.style.left = (e.clientX - rect.left) + 'px';
-                ripple.style.top = (e.clientY - rect.top) + 'px';
-                
-                this.appendChild(ripple);
-                
-                setTimeout(() => ripple.remove(), 600);
+        // ========== КОПИРОВАНИЕ + SNACKBAR ==========
+        const snackbar = document.getElementById('snackbar');
+        let snackbarTimer;
+
+        function showSnackbar() {
+            clearTimeout(snackbarTimer);
+            snackbar.classList.add('show');
+            snackbarTimer = setTimeout(() => snackbar.classList.remove('show'), 1800);
+        }
+
+        document.querySelectorAll('.crypto-row').forEach(row => {
+            const addrEl = row.querySelector('.crypto-addr');
+            const copyBtn = row.querySelector('.copy-btn');
+            const icon = copyBtn.querySelector('i');
+
+            copyBtn.addEventListener('click', async () => {
+                const address = addrEl.dataset.address;
+                try {
+                    await navigator.clipboard.writeText(address);
+                } catch {
+                    const ta = document.createElement('textarea');
+                    ta.value = address;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    ta.remove();
+                }
+
+                copyBtn.classList.add('copied');
+                icon.className = 'fas fa-check';
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    icon.className = 'far fa-copy';
+                }, 1500);
+
+                showSnackbar();
             });
         });
-
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    width: 100px;
-                    height: 100px;
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
