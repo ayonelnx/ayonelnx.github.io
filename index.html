@@ -14,17 +14,11 @@
             --m3-on-primary: #4A0E32;
             --m3-primary-container: #6B1A4A;
             --m3-on-primary-container: #FFD8F0;
-            --m3-secondary-container: #4A2A3E;
-            --m3-on-secondary-container: #F5D5E8;
             --m3-surface: #141218;
-            --m3-surface-container-low: #1D1B20;
-            --m3-surface-container: #211F26;
             --m3-surface-container-high: #2B2930;
             --m3-surface-container-highest: #36343B;
             --m3-on-surface: #E6E0E9;
             --m3-on-surface-variant: #CAC4D0;
-            --m3-outline: #938F99;
-            --m3-outline-variant: #49454F;
             --accent-rgb: 245, 181, 224;
             --m3-elevation-1: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
             --m3-elevation-2: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
@@ -48,67 +42,78 @@
             color: var(--m3-on-surface);
         }
 
+        /* ============================================================
+           ФОН: мягкие радиальные градиенты, без filter/blur
+           ============================================================ */
         .bg-scene {
             position: fixed;
             inset: 0;
             overflow: hidden;
             z-index: 0;
             pointer-events: none;
-            contain: strict;
         }
 
         .blob {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
             will-change: transform;
             transform: translateZ(0);
             backface-visibility: hidden;
         }
 
         .blob-1 {
-            width: 55vmax; height: 55vmax;
-            top: -20vmax; left: -15vmax;
-            background: radial-gradient(circle at 40% 40%, #fc82c5, #941062 60%, transparent 78%);
-            opacity: 0.55;
+            width: 70vmax; height: 70vmax;
+            top: -30vmax; left: -25vmax;
+            background: radial-gradient(circle at center,
+                rgba(252,130,197,0.55) 0%,
+                rgba(148,16,98,0.35) 25%,
+                rgba(107,26,74,0.18) 50%,
+                transparent 72%);
             animation: drift1 26s ease-in-out infinite alternate;
         }
 
         .blob-2 {
-            width: 45vmax; height: 45vmax;
-            bottom: -18vmax; right: -12vmax;
-            background: radial-gradient(circle at 60% 60%, #e486c0, #6B1A4A 55%, transparent 78%);
-            opacity: 0.55;
+            width: 60vmax; height: 60vmax;
+            bottom: -28vmax; right: -22vmax;
+            background: radial-gradient(circle at center,
+                rgba(228,134,192,0.5) 0%,
+                rgba(107,26,74,0.32) 28%,
+                rgba(60,15,40,0.15) 55%,
+                transparent 75%);
             animation: drift2 32s ease-in-out infinite alternate;
         }
 
         .blob-3 {
-            width: 35vmax; height: 35vmax;
-            top: 35%; left: 45%;
-            background: radial-gradient(circle at 50% 50%, #d264a8, #5c1440 55%, transparent 78%);
-            opacity: 0.4;
+            width: 50vmax; height: 50vmax;
+            top: 25%; left: 35%;
+            background: radial-gradient(circle at center,
+                rgba(210,100,168,0.35) 0%,
+                rgba(92,20,64,0.22) 30%,
+                transparent 70%);
             animation: drift3 22s ease-in-out infinite alternate;
         }
 
         @keyframes drift1 {
             0%   { transform: translate3d(0, 0, 0) scale(1); }
-            50%  { transform: translate3d(9vmax, 6vmax, 0) scale(1.15); }
-            100% { transform: translate3d(-4vmax, 10vmax, 0) scale(0.95); }
+            50%  { transform: translate3d(9vmax, 6vmax, 0) scale(1.12); }
+            100% { transform: translate3d(-4vmax, 10vmax, 0) scale(0.96); }
         }
         @keyframes drift2 {
             0%   { transform: translate3d(0, 0, 0) scale(1); }
-            50%  { transform: translate3d(-8vmax, -7vmax, 0) scale(1.1); }
-            100% { transform: translate3d(5vmax, -11vmax, 0) scale(1.2); }
+            50%  { transform: translate3d(-8vmax, -7vmax, 0) scale(1.08); }
+            100% { transform: translate3d(5vmax, -11vmax, 0) scale(1.16); }
         }
         @keyframes drift3 {
             0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-            100% { transform: translate3d(-10vmax, 6vmax, 0) scale(1.25) rotate(40deg); }
+            100% { transform: translate3d(-10vmax, 6vmax, 0) scale(1.2) rotate(40deg); }
         }
 
+        /* ============================================================
+           КАРТОЧКА ПРОФИЛЯ — без backdrop-filter
+           ============================================================ */
         .profile-card {
-            background: color-mix(in srgb, var(--m3-surface-container-high) 84%, transparent);
-            backdrop-filter: blur(14px) saturate(1.2);
-            -webkit-backdrop-filter: blur(14px) saturate(1.2);
+            background: rgba(43, 41, 48, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: var(--m3-shape-l);
             box-shadow: var(--m3-elevation-2);
             padding: 40px;
@@ -479,12 +484,11 @@
             justify-content: center;
             font-size: 20px;
             flex-shrink: 0;
-            color: var(--m3-on-primary-container);
-            background: var(--m3-primary-container);
+            color: #fff;
             box-shadow: var(--m3-elevation-1);
         }
-        .nav-icon.blog  { background: linear-gradient(135deg, #f0a6ee, #6B1A4A); color: #fff; }
-        .nav-icon.files { background: linear-gradient(135deg, #c084fc, #7B1FA2); color: #fff; }
+        .nav-icon.blog  { background: linear-gradient(135deg, #f0a6ee, #6B1A4A); }
+        .nav-icon.files { background: linear-gradient(135deg, #c084fc, #7B1FA2); }
 
         .nav-body { flex: 1; min-width: 0; }
         .nav-title {
