@@ -32,7 +32,6 @@
   }
   .container { max-width: 860px; margin: 0 auto; padding: 60px 20px 80px; }
 
-  /* Header */
   header { text-align: center; margin-bottom: 48px; }
   .site-title {
     font-size: clamp(2.2rem, 6vw, 3.4rem);
@@ -49,7 +48,6 @@
   .site-subtitle { color: var(--muted); margin-top: 10px; animation: fadeDown 0.8s 0.15s ease both; }
   @keyframes fadeDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
 
-  /* Post cards */
   .post-list { display: flex; flex-direction: column; gap: 22px; }
   .post-card {
     display: block;
@@ -78,7 +76,6 @@
   }
   .post-card:active { transform: translateY(-1px) scale(0.99); }
 
-  /* ripple on click */
   .ripple {
     position: absolute; border-radius: 50%;
     background: rgba(255,255,255,0.35);
@@ -107,7 +104,6 @@
 
   .empty, .error-msg { text-align: center; color: var(--muted); padding: 60px 0; animation: cardIn 0.5s ease both; }
 
-  /* back-to-top */
   .back-home {
     display: inline-flex; align-items: center; gap: 8px;
     margin-top: 50px; color: var(--muted); text-decoration: none;
@@ -135,85 +131,103 @@
 const listEl = document.getElementById('post-list');
 const statusEl = document.getElementById('status');
 
-// ---------- markdown helpers ----------
+/* ---------- настройки репозитория ---------- */
+const REPO_OWNER = 'ayonelnx';
+const REPO_NAME  = 'ayonelnx.github.io';
+const POSTS_PATH = 'blog/posts';   // папка с .md файлами внутри репо
+
+/* ---------- markdown helpers ---------- */
 function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Extract "# Title" from markdown text
 function extractTitle(md) {
   const m = md.match(/^#\s+(.+)$/m);
   return m ? m[1].trim() : 'Без названия';
 }
 
-// Build a short plain-text excerpt (skip the H1 line)
 function makeExcerpt(md, maxLen = 180) {
   const noTitle = md.replace(/^#\s+.+$/m, '');
   const plain = noTitle
-    .replace(/```[\s\S]*?```/g, ' ')      // code blocks
-    .replace(/!\[.*?\]\(.*?\)/g, ' ')      // images
-    .replace(/\[(.*?)\]\(.*?\)/g, '$1')    // links -> text
-    .replace(/[#>*`_\-]+/g, ' ')           // md syntax
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/!\[.*?\]\(.*?\)/g, ' ')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    .replace(/[#>*`_\-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   return plain.length > maxLen ? plain.slice(0, maxLen).trimEnd() + '…' : plain;
 }
 
-// Format ISO date -> "16 октября 2026"
 function formatDate(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return iso;
   return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-// ---------- load posts ----------
+/* Достаём дату из имени файла вида 2026-10-16-some-title.md */
+function extractDateFromName(name) {
+  const m = name.match(/(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : '';
+}
+
+/* ---------- загрузка списка файлов с GitHub ---------- */
 async function loadPosts() {
-  let manifest;
+  const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${POSTS_PATH}`;
+
+  let files;
   try {
-    const r = await fetch('posts.json', { cache: 'no-store' });
-    if (!r.ok) throw new Error('posts.json not found');
-    manifest = await r.json();
+    const r = await fetch(apiUrl, {
+      cache: 'no-store',
+      headers: { 'Accept': 'application/vnd.github+json' }
+    });
+    if (!r.ok) throw new Error('GitHub API: ' + r.status);
+    const data = await r.json();
+
+    files = data.filter(item => item.type === 'file' && /\.md$/i.test(item.name));
   } catch (e) {
-    statusEl.innerHTML = '<div class="error-msg">Не удалось загрузить posts.json — проверь, что файл лежит рядом с index.html.</div>';
+    statusEl.innerHTML = '<div class="error-msg">Не удалось загрузить список постов с GitHub. Проверь путь <code>' +
+      POSTS_PATH + '</code> и лимит API.</div>';
     return;
   }
 
-  // sort newest first
-  manifest.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // сортировка: новейшие первыми (по имени файла)
+  files.sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
 
-  if (!manifest.length) {
-    statusEl.innerHTML = '<div class="empty">Пока нет постов. Добавь .md файлы в /blog/posts/ и обнови posts.json ✨</div>';
+  if (!files.length) {
+    statusEl.innerHTML = '<div class="empty">Пока нет постов. Добавь .md файлы в /' + POSTS_PATH + ' ✨</div>';
     return;
   }
 
-  for (let i = 0; i < manifest.length; i++) {
-    const meta = manifest[i];
-    let title = meta.title, excerpt = '';
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const slug = file.name.replace(/\.md$/i, '');
+    let title   = slug;
+    let excerpt = '';
+    const dateISO = extractDateFromName(file.name);
 
     try {
-      const r = await fetch('posts/' + meta.file, { cache: 'no-store' });
+      // download_url = raw.githubusercontent.com — не тратит лимит GitHub API
+      const r = await fetch(file.download_url, { cache: 'no-store' });
       if (r.ok) {
         const md = await r.text();
-        title = extractTitle(md) || title;
+        title   = extractTitle(md) || title;
         excerpt = makeExcerpt(md);
       }
-    } catch (_) { /* use manifest title */ }
+    } catch (_) { /* оставляем slug в качестве заголовка */ }
 
     const card = document.createElement('a');
     card.className = 'post-card';
-    card.href = 'post.html?p=' + encodeURIComponent(meta.file.replace(/\.md$/i, ''));
+    card.href = 'post.html?p=' + encodeURIComponent(slug);
     card.innerHTML = `
       <div class="post-header">
-        <span class="post-date">${formatDate(meta.date)}</span>
+        ${dateISO ? `<span class="post-date">${formatDate(dateISO)}</span>` : ''}
         <h2 class="post-title">${escapeHtml(title)}</h2>
       </div>
       <p class="post-excerpt">${escapeHtml(excerpt)}</p>
       <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
 
-    // staggered appearance
     setTimeout(() => card.classList.add('visible'), 80 * i);
 
-    // click ripple
     card.addEventListener('click', function (e) {
       const rect = card.getBoundingClientRect();
       const ripple = document.createElement('span');
