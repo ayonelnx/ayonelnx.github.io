@@ -11,4 +11,3 @@ func main() {
     fmt.Println("Hello, World!")
 }
 ```
-<big>Ой, вот большой текст</big>
