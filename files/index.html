@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Файлы</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+  :root {
+    --accent: #7c8cff;
+    --accent2: #b58cff;
+    --text: #e8eaf2;
+    --muted: #9aa0b4;
+    --card: rgba(255, 255, 255, 0.07);
+    --border: rgba(255, 255, 255, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background: url('https://github.com/ayonelnx/ayonelnx.github.io/blob/main/blog/backgroundofblog.png?raw=true') center/cover fixed no-repeat, #0b0d17;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: rgba(8, 10, 20, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: -1;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 60px 20px 80px; }
+
+  /* ---------- header ---------- */
+  header { text-align: center; margin-bottom: 40px; }
+  .site-title {
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2), var(--accent));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite, fadeDown 0.8s ease both;
+  }
+  @keyframes gradientShift { to { background-position: 200% center; } }
+  .site-subtitle {
+    color: var(--muted); margin-top: 10px;
+    animation: fadeDown 0.8s 0.15s ease both;
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ---------- toolbar / search ---------- */
+  .toolbar {
+    display: flex; gap: 12px; margin-bottom: 18px;
+    animation: fadeDown 0.8s 0.25s ease both;
+  }
+  .search {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 18px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color .3s, box-shadow .3s, background .3s;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124, 140, 255, 0.18);
+    background: rgba(255,255,255,0.09);
+  }
+  .search::placeholder { color: var(--muted); }
+  .search::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  /* ---------- breadcrumbs ---------- */
+  .crumbs {
+    display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+    margin-bottom: 22px; font-size: 0.92rem;
+    animation: fadeDown 0.8s 0.3s ease both;
+  }
+  .crumb {
+    color: var(--muted); text-decoration: none;
+    padding: 4px 10px; border-radius: 8px;
+    transition: color .2s, background .2s;
+    cursor: pointer;
+  }
+  .crumb:hover { color: var(--accent); background: rgba(255,255,255,0.06); }
+  .crumb.current { color: var(--text); font-weight: 600; cursor: default; }
+  .crumb.current:hover { color: var(--text); background: transparent; }
+  .crumb-sep { color: var(--muted); opacity: 0.4; user-select: none; }
+
+  /* ---------- file cards ---------- */
+  .file-list { display: flex; flex-direction: column; gap: 12px; }
+  .file-card {
+    display: flex; align-items: center; gap: 16px;
+    text-decoration: none; color: inherit;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative; overflow: hidden;
+    transition: transform .3s cubic-bezier(.22,.9,.3,1.2),
+                box-shadow .3s ease,
+                border-color .3s ease,
+                background .3s ease;
+    opacity: 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  .file-card.visible { animation: cardIn .5s ease both; }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  .file-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 34px rgba(124, 140, 255, 0.22);
+    background: rgba(255,255,255,0.09);
+  }
+  .file-card:active { transform: translateY(-1px) scale(0.995); }
+
+  .file-icon {
+    width: 46px; height: 46px; flex-shrink: 0;
+    display: grid; place-items: center;
+    font-size: 1.4rem;
+    background: rgba(124, 140, 255, 0.12);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: transform .3s ease, background .3s ease;
+  }
+  .file-card:hover .file-icon {
+    transform: scale(1.08) rotate(-5deg);
+    background: rgba(124, 140, 255, 0.22);
+  }
+
+  .file-body { flex: 1; min-width: 0; }
+  .file-name {
+    font-weight: 600; font-size: 1rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: color .3s ease;
+  }
+  .file-card:hover .file-name { color: var(--accent); }
+  .file-meta {
+    font-size: 0.8rem; color: var(--muted); margin-top: 4px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .file-meta .dot { opacity: 0.4; }
+
+  .file-arrow {
+    color: var(--muted); font-size: 1.05rem; flex-shrink: 0;
+    transition: transform .3s ease, color .3s ease;
+  }
+  .file-card:hover .file-arrow { color: var(--accent); transform: translateX(4px); }
+
+  /* ---------- ripple ---------- */
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: scale(0); pointer-events: none;
+    animation: rippleAnim 0.6s ease-out forwards;
+  }
+  @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+  /* ---------- states ---------- */
+  .empty, .error-msg, .loading {
+    text-align: center; color: var(--muted);
+    padding: 60px 0; animation: cardIn 0.5s ease both;
+    line-height: 1.6;
+  }
+  .error-msg b { color: var(--text); }
+
+  footer {
+    text-align: center; margin-top: 60px;
+    color: var(--muted); font-size: 0.85rem; opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1 class="site-title">Файлы</h1>
+    <p class="site-subtitle">Публичный архив · всё в одном месте</p>
+  </header>
+
+  <div class="toolbar">
+    <input id="search" class="search" type="search" placeholder="Поиск по файлам…" autocomplete="off">
+  </div>
+
+  <nav id="crumbs" class="crumbs"></nav>
+
+  <div id="file-list" class="file-list"></div>
+  <div id="status"></div>
+
+  <footer>© ayonelnx · Powered by GitHub Pages</footer>
+</div>
+
+<script>
+const OWNER = 'ayonelnx';
+const REPO  = 'ayonelnx.github.io';
+const ROOT  = 'files';
+const EXCLUDE = new Set(['index.html', '.gitkeep', '.nojekyll', '.DS_Store']);
+
+const listEl   = document.getElementById('file-list');
+const statusEl = document.getElementById('status');
+const crumbsEl = document.getElementById('crumbs');
+const searchEl = document.getElementById('search');
+
+let currentPath = '';
+let allItems = [];
+
+/* ---------------- helpers ---------------- */
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const ICONS = {
+  pdf: '📕',
+  doc: '📘', docx: '📘', rtf: '📘', odt: '📘',
+  xls: '📗', xlsx: '📗', ods: '📗', csv: '📗',
+  ppt: '📙', pptx: '📙', odp: '📙',
+  zip: '🗜️', rar: '🗜️', '7z': '🗜️', tar: '🗜️', gz: '🗜️', bz2: '🗜️', xz: '🗜️',
+  png: '🖼️', jpg: '🖼️', jpeg: '🖼️', gif: '🖼️', webp: '🖼️',
+  svg: '🖼️', bmp: '🖼️', ico: '🖼️', avif: '🖼️',
+  mp3: '🎵', wav: '🎵', flac: '🎵', ogg: '🎵', m4a: '🎵', opus: '🎵',
+  mp4: '🎬', mkv: '🎬', avi: '🎬', mov: '🎬', webm: '🎬', m4v: '🎬',
+  txt: '📄', md: '📝', log: '📄',
+  json: '🧾', xml: '🧾', yml: '🧾', yaml: '🧾', toml: '🧾',
+  js: '📜', mjs: '📜', ts: '📜', jsx: '📜', tsx: '📜',
+  py: '🐍', rb: '💎', go: '🐹', rs: '🦀', java: '☕',
+  c: '📜', cpp: '📜', h: '📜', hpp: '📜', cs: '📜', php: '🐘',
+  html: '🌐', htm: '🌐', css: '🎨', scss: '🎨', sass: '🎨',
+  exe: '⚙️', msi: '⚙️', apk: '📱', ipa: '📱', iso: '💿', dmg: '💿',
+  deb: '📦', rpm: '📦', appimage: '📦',
+  ttf: '🔤', otf: '🔤', woff: '🔤', woff2: '🔤',
+  psd: '🎨', ai: '🎨', fig: '🎨', sketch: '🎨',
+  epub: '📚', mobi: '📚', fb2: '📚',
+  db: '🗄️', sql: '🗄️', sqlite: '🗄️',
+  torrent: '🧲'
+};
+
+function extOf(name) {
+  const parts = name.split('.');
+  return parts.length > 1 ? parts.pop().toLowerCase() : '';
+}
+
+function iconFor(item) {
+  if (item.type === 'dir') return '📁';
+  return ICONS[extOf(item.name)] || '📄';
+}
+
+function typeLabel(item) {
+  if (item.type === 'dir') return 'Папка';
+  const e = extOf(item.name);
+  return e ? e.toUpperCase() : 'Файл';
+}
+
+function formatSize(bytes) {
+  if (bytes == null) return '';
+  if (bytes < 1024) return bytes + ' Б';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1).replace(/\.0$/, '') + ' КБ';
+  if (bytes < 1024 ** 3) return (bytes / 1024 / 1024).toFixed(1).replace(/\.0$/, '') + ' МБ';
+  return (bytes / 1024 ** 3).toFixed(2).replace(/\.00$/, '') + ' ГБ';
+}
+
+function spawnRipple(e, el) {
+  const rect = el.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const cx = e.clientX || (rect.left + rect.width / 2);
+  const cy = e.clientY || (rect.top + rect.height / 2);
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  r.style.width = r.style.height = size + 'px';
+  r.style.left = (cx - rect.left - size / 2) + 'px';
+  r.style.top  = (cy - rect.top  - size / 2) + 'px';
+  el.appendChild(r);
+  setTimeout(() => r.remove(), 650);
+}
+
+/* ---------------- GitHub API ---------------- */
+async function fetchDir(path) {
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${ROOT}${path ? '/' + path : ''}`;
+  const r = await fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } });
+  if (!r.ok) {
+    const err = new Error('GitHub API: ' + r.status);
+    err.status = r.status;
+    throw err;
+  }
+  const data = await r.json();
+  return Array.isArray(data) ? data : [];
+}
+
+/* ---------------- rendering ---------------- */
+function renderCrumbs() {
+  const parts = currentPath ? currentPath.split('/') : [];
+  let html = `<a class="crumb${parts.length ? '' : ' current'}" data-path="">Корень</a>`;
+  let acc = '';
+  parts.forEach((p, i) => {
+    acc = acc ? acc + '/' + p : p;
+    const last = i === parts.length - 1;
+    html += `<span class="crumb-sep">/</span>`;
+    html += last
+      ? `<span class="crumb current">${escapeHtml(p)}</span>`
+      : `<a class="crumb" data-path="${escapeHtml(acc)}">${escapeHtml(p)}</a>`;
+  });
+  crumbsEl.innerHTML = html;
+
+  crumbsEl.querySelectorAll('a.crumb:not(.current)').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      load(a.dataset.path || '');
+    });
+  });
+}
+
+function renderItems(items) {
+  listEl.innerHTML = '';
+
+  if (!items.length) {
+    const hasQuery = searchEl.value.trim().length > 0;
+    listEl.innerHTML = `<div class="empty">${
+      hasQuery ? 'Ничего не найдено 🔍' : 'Здесь пока пусто ✨'
+    }</div>`;
+    return;
+  }
+
+  items.forEach((item, i) => {
+    const isDir = item.type === 'dir';
+    const el = document.createElement('a');
+    el.className = 'file-card';
+    el.title = item.name;
+    el.innerHTML = `
+      <div class="file-icon">${iconFor(item)}</div>
+      <div class="file-body">
+        <div class="file-name">${escapeHtml(item.name)}</div>
+        <div class="file-meta">
+          <span>${typeLabel(item)}</span>
+          ${!isDir && item.size != null
+            ? `<span class="dot">•</span><span>${formatSize(item.size)}</span>`
+            : ''}
+        </div>
+      </div>
+      <div class="file-arrow">${isDir ? '→' : '↓'}</div>
+    `;
+
+    if (isDir) {
+      el.href = '#';
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        spawnRipple(e, el);
+        const next = currentPath ? currentPath + '/' + item.name : item.name;
+        setTimeout(() => load(next), 180);
+      });
+    } else {
+      el.href = item.download_url || item.html_url;
+      el.target = '_blank';
+      el.rel = 'noopener noreferrer';
+      el.setAttribute('download', '');
+      el.addEventListener('click', (e) => spawnRipple(e, el));
+    }
+
+    setTimeout(() => el.classList.add('visible'), Math.min(50 * i, 600));
+    listEl.appendChild(el);
+  });
+}
+
+/* ---------------- main loader ---------------- */
+async function load(path = '') {
+  currentPath = path;
+  searchEl.value = '';
+  renderCrumbs();
+  listEl.innerHTML = '';
+  statusEl.innerHTML = '<div class="loading">Загрузка…</div>';
+
+  let items;
+  try {
+    items = await fetchDir(path);
+  } catch (e) {
+    let msg = 'Не удалось загрузить список файлов.';
+    if (e.status === 404)      msg = 'Папка <b>files/</b> не найдена в репозитории.';
+    else if (e.status === 403) msg = 'GitHub API временно ограничил запросы. Попробуй позже.';
+    else if (e.status === 401) msg = 'Репозиторий приватный — API без токена его не отдаст.';
+    statusEl.innerHTML = `<div class="error-msg">${msg}</div>`;
+    return;
+  }
+
+  items = items.filter(it => !EXCLUDE.has(it.name));
+  items.sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
+    return a.name.localeCompare(b.name, 'ru', { numeric: true, sensitivity: 'base' });
+  });
+
+  allItems = items;
+  statusEl.innerHTML = '';
+  renderItems(items);
+}
+
+/* ---------------- search ---------------- */
+searchEl.addEventListener('input', () => {
+  const q = searchEl.value.trim().toLowerCase();
+  const filtered = q
+    ? allItems.filter(it => it.name.toLowerCase().includes(q))
+    : allItems;
+  renderItems(filtered);
+});
+
+/* ---------------- go ---------------- */
+load('');
+</script>
+</body>
+</html>
