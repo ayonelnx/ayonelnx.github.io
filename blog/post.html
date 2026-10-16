@@ -20,50 +20,50 @@
     font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
     color: var(--text);
     min-height: 100vh;
-    background: #0b0d17;
+    background: #0a0d10;
+    position: relative;
   }
 
-  /* ---------- animated mesh background (green) ---------- */
-  .bg-svg {
-    position: fixed; inset: 0;
-    z-index: -2;
+  /* ---------- static gradient background ---------- */
+  .bg-scene {
+    position: fixed;
+    inset: 0;
     overflow: hidden;
+    z-index: -1;
     pointer-events: none;
   }
-  .bg-svg svg { width: 100%; height: 100%; display: block; }
-  .bg-svg .sw { transform-box: fill-box; transform-origin: center; will-change: transform; }
-  .bg-svg .sw1 { animation: sw1 20s ease-in-out infinite; }
-  .bg-svg .sw2 { animation: sw2 24s ease-in-out infinite; }
-  .bg-svg .sw3 { animation: sw3 28s ease-in-out infinite; }
-  .bg-svg .sw4 { animation: sw4 22s ease-in-out infinite; }
-  @keyframes sw1 {
-    0%, 100% { transform: translate(0,0) scale(1); }
-    33%      { transform: translate(70px,-50px) scale(1.12); }
-    66%      { transform: translate(-40px,60px) scale(0.93); }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
   }
-  @keyframes sw2 {
-    0%, 100% { transform: translate(0,0) scale(1); }
-    33%      { transform: translate(-80px,40px) scale(1.1); }
-    66%      { transform: translate(60px,-60px) scale(0.95); }
+  .blob-1 {
+    width: 70vmax; height: 70vmax;
+    top: -30vmax; left: -25vmax;
+    background: radial-gradient(circle at center,
+      rgba(28,249,54,0.28) 0%,
+      rgba(9,83,63,0.32) 25%,
+      rgba(37,136,32,0.16) 50%,
+      transparent 72%);
   }
-  @keyframes sw3 {
-    0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); }
-    33%      { transform: translate(60px,55px) scale(1.08) rotate(6deg); }
-    66%      { transform: translate(-55px,-45px) scale(0.93) rotate(-6deg); }
+  .blob-2 {
+    width: 60vmax; height: 60vmax;
+    bottom: -28vmax; right: -22vmax;
+    background: radial-gradient(circle at center,
+      rgba(186,178,12,0.24) 0%,
+      rgba(37,136,32,0.26) 28%,
+      rgba(9,83,63,0.14) 55%,
+      transparent 75%);
   }
-  @keyframes sw4 {
-    0%, 100% { transform: translate(0,0) scale(1); }
-    50%      { transform: translate(-65px,70px) scale(1.13); }
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: rgba(4, 12, 10, 0.42);
-    backdrop-filter: blur(2px);
-    z-index: -1;
+  .blob-3 {
+    width: 50vmax; height: 50vmax;
+    top: 25%; left: 35%;
+    background: radial-gradient(circle at center,
+      rgba(28,249,54,0.14) 0%,
+      rgba(9,83,63,0.2) 30%,
+      transparent 70%);
   }
 
-  .container { max-width: 780px; margin: 0 auto; padding: 50px 20px 80px; }
+  .container { max-width: 780px; margin: 0 auto; padding: 50px 20px 80px; position: relative; }
 
   .loader { text-align: center; padding: 120px 0; }
   .loader span {
@@ -78,7 +78,7 @@
   .error-box { text-align: center; padding: 80px 0; color: var(--muted); animation: fadeUp 0.5s ease both; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
-  /* ---------- back button (redesigned) ---------- */
+  /* ---------- back button ---------- */
   .back-btn {
     display: inline-flex; align-items: center; gap: 10px;
     color: var(--text); text-decoration: none; font-weight: 600;
@@ -171,7 +171,6 @@
   .content th, .content td { border: 1px solid var(--border); padding: 9px 14px; }
   .content th { background: rgba(var(--accent-rgb), 0.12); }
 
-  /* ---------- scrollbar ---------- */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
@@ -185,27 +184,11 @@
 <base target="_blank">
 </head>
 <body>
-<!-- ===== animated green mesh background ===== -->
-<div class="bg-svg" aria-hidden="true">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <filter id="blur" filterUnits="userSpaceOnUse" x="0" y="0" width="1000" height="500">
-        <feGaussianBlur stdDeviation="168" />
-      </filter>
-      <filter id="noise" x="0" y="0" width="100%" height="100%">
-        <feTurbulence type="fractalNoise" baseFrequency="1" octaves="3" result="turbulence" stitchTiles="stitch" />
-        <feBlend in="SourceGraphic" in2="turbulence" mode="overlay" />
-      </filter>
-    </defs>
-    <rect id="background" width="100%" height="100%" fill="#000" />
-    <g id="swatches" filter="url(#blur)">
-      <rect class="sw sw1" x="201.72421208408113" y="-146.4527952344053"  width="342.921944443973"   height="582.5629641032037"  fill="#09533f" />
-      <rect class="sw sw2" x="289.1231513839648"  y="133.17153406167108" width="341.3269880922901"  height="405.58624760268276" fill="#1cf936" />
-      <rect class="sw sw3" x="456.6570866263271"  y="259.5834516989205"  width="415.19998894386384" height="301.29288642421477" fill="#bab20c" />
-      <rect class="sw sw4" x="389.01795344038504" y="-5.556255178521042" width="361.29726427563185" height="331.62150029313995" fill="#258820" />
-    </g>
-    <rect x="0" y="0" width="1000" height="500" style="mix-blend-mode: luminosity; filter: url(#noise); opacity: 0%"></rect>
-  </svg>
+<!-- static gradient background -->
+<div class="bg-scene" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 </div>
 
 <div class="container">
