@@ -9,16 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..800&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* ============================================================
-           MATERIAL 3 — тёмная схема, розово-магентовая
-           ============================================================ */
         :root {
             --m3-primary: #F5B5E0;
             --m3-on-primary: #4A0E32;
             --m3-primary-container: #6B1A4A;
             --m3-on-primary-container: #FFD8F0;
-            --m3-secondary-container: #5A4553;
-            --m3-on-secondary-container: #F0DCE8;
+            --m3-secondary-container: #4A2A3E;
+            --m3-on-secondary-container: #F5D5E8;
             --m3-surface: #141218;
             --m3-surface-container-low: #1D1B20;
             --m3-surface-container: #211F26;
@@ -51,9 +48,6 @@
             color: var(--m3-on-surface);
         }
 
-        /* ============================================================
-           ФОН: 3 размытых цветных пятна (CSS, GPU-анимация)
-           ============================================================ */
         .bg-scene {
             position: fixed;
             inset: 0;
@@ -72,7 +66,6 @@
             backface-visibility: hidden;
         }
 
-        /* #fc82c5 — ярко-розовый */
         .blob-1 {
             width: 55vmax; height: 55vmax;
             top: -20vmax; left: -15vmax;
@@ -81,7 +74,6 @@
             animation: drift1 26s ease-in-out infinite alternate;
         }
 
-        /* #e486c0 — нежный розовый */
         .blob-2 {
             width: 45vmax; height: 45vmax;
             bottom: -18vmax; right: -12vmax;
@@ -90,7 +82,6 @@
             animation: drift2 32s ease-in-out infinite alternate;
         }
 
-        /* #d264a8 — средний акцент */
         .blob-3 {
             width: 35vmax; height: 35vmax;
             top: 35%; left: 45%;
@@ -114,9 +105,6 @@
             100% { transform: translate3d(-10vmax, 6vmax, 0) scale(1.25) rotate(40deg); }
         }
 
-        /* ============================================================
-           КАРТОЧКА ПРОФИЛЯ
-           ============================================================ */
         .profile-card {
             background: color-mix(in srgb, var(--m3-surface-container-high) 84%, transparent);
             backdrop-filter: blur(14px) saturate(1.2);
@@ -228,45 +216,75 @@
             color: var(--m3-primary);
             font-size: 16px;
         }
-        /* ============================================================
-           СОЦСЕТИ
-           ============================================================ */
+
+        .social-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 26px;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: slideIn 0.4s cubic-bezier(0.2, 0, 0, 1) 0.9s forwards;
+        }
+
+        .m3-btn {
+            position: relative;
+            overflow: hidden;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+            transition: box-shadow 0.25s ease, background 0.25s ease, transform 0.15s ease;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.18;
+            transform: scale(0);
+            pointer-events: none;
+            animation: rippleAnim 0.55s ease-out forwards;
+        }
+
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
+        }
+
         .social-btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(var(--accent-rgb), 0.18);
+            background: #3A1E30;
             color: var(--m3-primary);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            box-shadow: var(--m3-elevation-1);
         }
 
         .social-btn:hover {
-            background: rgba(var(--accent-rgb), 0.14);
-            border-color: rgba(var(--accent-rgb), 0.45);
-            box-shadow: 0 4px 18px rgba(var(--accent-rgb), 0.22);
+            background: #4C2740;
+            box-shadow: var(--m3-elevation-2);
         }
 
         .social-btn:active { transform: scale(0.95); }
 
         .fab {
-            background: rgba(var(--accent-rgb), 0.16);
-            border: 1px solid rgba(var(--accent-rgb), 0.32);
-            color: var(--m3-primary);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            box-shadow: 0 2px 12px rgba(var(--accent-rgb), 0.12);
+            background: var(--m3-primary-container);
+            color: var(--m3-on-primary-container);
+            box-shadow: var(--m3-elevation-2);
         }
 
         .fab:hover {
-            background: rgba(var(--accent-rgb), 0.24);
-            border-color: rgba(var(--accent-rgb), 0.55);
-            box-shadow: 0 6px 22px rgba(var(--accent-rgb), 0.32);
+            background: #7E1F58;
+            box-shadow: var(--m3-elevation-3);
             transform: translateY(-2px);
         }
         .fab:active { transform: translateY(0) scale(0.95); }
 
-        /* ============================================================
-           МОДАЛЬНЫЕ ОКНА
-           ============================================================ */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -362,7 +380,6 @@
             padding: 0 4px 6px;
         }
 
-        /* строка крипты */
         .crypto-row {
             display: flex;
             align-items: center;
@@ -433,7 +450,6 @@
         .icon-btn.copied { color: #7ee787; }
         .icon-btn.copied:hover { background: rgba(126, 231, 135, 0.12); }
 
-        /* ---------- NAV ROWS ---------- */
         .nav-row {
             display: flex;
             align-items: center;
@@ -493,9 +509,6 @@
         }
         .nav-row:hover .nav-arrow { color: var(--m3-primary); transform: translateX(4px); }
 
-        /* ============================================================
-           SNACKBAR
-           ============================================================ */
         .snackbar {
             position: fixed;
             left: 50%;
@@ -523,9 +536,6 @@
 
         .snackbar i { color: var(--m3-primary); }
 
-        /* ============================================================
-           АДАПТИВ
-           ============================================================ */
         @media (max-width: 640px) {
             .profile-card {
                 flex-direction: column;
@@ -577,7 +587,6 @@
         </div>
     </div>
 
-    <!-- M3 Dialog: донаты -->
     <div class="modal-overlay" id="donateModal">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
             <div class="modal-head">
@@ -620,7 +629,6 @@
         </div>
     </div>
 
-    <!-- M3 Dialog: навигация -->
     <div class="modal-overlay" id="navModal">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="navTitle">
             <div class="modal-head">
@@ -654,14 +662,12 @@
         </div>
     </div>
 
-    <!-- M3 Snackbar -->
     <div class="snackbar" id="snackbar">
         <i class="fas fa-check-circle"></i>
         <span>Адрес скопирован в буфер обмена</span>
     </div>
 
     <script>
-        // ========== RIPPLE ==========
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('.m3-btn, .icon-btn, .modal-close, .nav-row');
             if (!btn) return;
@@ -676,7 +682,6 @@
             setTimeout(() => ripple.remove(), 600);
         });
 
-        // ========== МОДАЛКИ ==========
         const donateModal = document.getElementById('donateModal');
         const donateBtn   = document.getElementById('donateBtn');
         const modalClose  = document.getElementById('modalClose');
@@ -708,7 +713,6 @@
             if (navModal.classList.contains('open'))    closeModal(navModal);
         });
 
-        // ========== КОПИРОВАНИЕ + SNACKBAR ==========
         const snackbar = document.getElementById('snackbar');
         let snackbarTimer;
 
