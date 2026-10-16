@@ -10,15 +10,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ============================================================
-           MATERIAL 3 (Material You) — тёмная схема
+           MATERIAL 3 (Material You) — тёмная схема, розово-магентовая
            ============================================================ */
         :root {
-            --m3-primary: #D0BCFF;
-            --m3-on-primary: #381E72;
-            --m3-primary-container: #4F378B;
-            --m3-on-primary-container: #EADDFF;
-            --m3-secondary-container: #4A4458;
-            --m3-on-secondary-container: #E8DEF8;
+            --m3-primary: #F5B5E0;
+            --m3-on-primary: #4A0E32;
+            --m3-primary-container: #6B1A4A;
+            --m3-on-primary-container: #FFD8F0;
+            --m3-secondary-container: #5A4553;
+            --m3-on-secondary-container: #F0DCE8;
             --m3-surface: #141218;
             --m3-surface-container-low: #1D1B20;
             --m3-surface-container: #211F26;
@@ -28,6 +28,7 @@
             --m3-on-surface-variant: #CAC4D0;
             --m3-outline: #938F99;
             --m3-outline-variant: #49454F;
+            --accent-rgb: 245, 181, 224;
             --m3-elevation-1: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
             --m3-elevation-2: 0 1px 2px rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
             --m3-elevation-3: 0 1px 3px rgba(0,0,0,0.3), 0 4px 8px 3px rgba(0,0,0,0.15);
@@ -40,7 +41,7 @@
 
         body {
             font-family: "Roboto Flex", "Google Sans", system-ui, sans-serif;
-            background: var(--m3-surface);
+            background: #0b0810;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -51,73 +52,39 @@
         }
 
         /* ============================================================
-           АНИМИРОВАННЫЙ ФОН
+           АНИМИРОВАННЫЙ МЕШ-ФОН (розово-магентовый)
            ============================================================ */
-        .bg-scene {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
+        .bg-svg {
+            position: fixed; inset: 0;
             z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
         }
-
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.5;
-            will-change: transform;
+        .bg-svg svg { width: 100%; height: 100%; display: block; }
+        .bg-svg .sw { transform-box: fill-box; transform-origin: center; will-change: transform; }
+        .bg-svg .sw1 { animation: sw1 22s ease-in-out infinite; }
+        .bg-svg .sw2 { animation: sw2 26s ease-in-out infinite; }
+        .bg-svg .sw3 { animation: sw3 30s ease-in-out infinite; }
+        @keyframes sw1 {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(-70px,-60px) scale(1.12); }
+            66%      { transform: translate(50px,40px) scale(0.94); }
         }
-
-        .blob-1 {
-            width: 55vmax; height: 55vmax;
-            top: -20vmax; left: -15vmax;
-            background: radial-gradient(circle at 40% 40%, #7F67BE, #4F378B 60%, transparent 75%);
-            animation: drift1 26s ease-in-out infinite alternate;
+        @keyframes sw2 {
+            0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); }
+            33%      { transform: translate(60px,50px) scale(1.08) rotate(5deg); }
+            66%      { transform: translate(-55px,-40px) scale(0.92) rotate(-5deg); }
         }
-
-        .blob-2 {
-            width: 45vmax; height: 45vmax;
-            bottom: -18vmax; right: -12vmax;
-            background: radial-gradient(circle at 60% 60%, #0E6F9E, #3755A0 55%, transparent 75%);
-            animation: drift2 32s ease-in-out infinite alternate;
+        @keyframes sw3 {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50%      { transform: translate(70px,-50px) scale(1.15); }
         }
-
-        .blob-3 {
-            width: 35vmax; height: 35vmax;
-            top: 35%; left: 45%;
-            background: radial-gradient(circle at 50% 50%, #984061, #633B48 55%, transparent 75%);
-            opacity: 0.35;
-            animation: drift3 22s ease-in-out infinite alternate;
-        }
-
-        @keyframes drift1 {
-            0%   { transform: translate(0, 0) scale(1); }
-            50%  { transform: translate(9vmax, 6vmax) scale(1.15); }
-            100% { transform: translate(-4vmax, 10vmax) scale(0.95); }
-        }
-
-        @keyframes drift2 {
-            0%   { transform: translate(0, 0) scale(1); }
-            50%  { transform: translate(-8vmax, -7vmax) scale(1.1); }
-            100% { transform: translate(5vmax, -11vmax) scale(1.2); }
-        }
-
-        @keyframes drift3 {
-            0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
-            100% { transform: translate(-10vmax, 6vmax) scale(1.25) rotate(40deg); }
-        }
-
-        .bg-scene::after {
+        body::before {
             content: '';
-            position: absolute;
-            inset: 0;
-            background-image: repeating-linear-gradient(
-                0deg,
-                rgba(255,255,255,0.015) 0px,
-                rgba(255,255,255,0.015) 1px,
-                transparent 1px,
-                transparent 3px
-            );
+            position: fixed; inset: 0;
+            background: rgba(14, 6, 18, 0.35);
+            backdrop-filter: blur(2px);
+            z-index: 1;
             pointer-events: none;
         }
 
@@ -125,7 +92,7 @@
            КАРТОЧКА ПРОФИЛЯ
            ============================================================ */
         .profile-card {
-            background: color-mix(in srgb, var(--m3-surface-container-high) 82%, transparent);
+            background: color-mix(in srgb, var(--m3-surface-container-high) 78%, transparent);
             backdrop-filter: blur(20px) saturate(1.3);
             -webkit-backdrop-filter: blur(20px) saturate(1.3);
             border-radius: var(--m3-shape-l);
@@ -137,7 +104,7 @@
             gap: 40px;
             align-items: flex-start;
             position: relative;
-            z-index: 1;
+            z-index: 2;
             opacity: 0;
             transform: translateY(28px) scale(0.97);
             animation: cardAppear 0.55s cubic-bezier(0.2, 0, 0, 1) forwards;
@@ -215,7 +182,7 @@
             transition: background 0.2s ease;
         }
 
-        .info-item:hover { background: rgba(208, 188, 255, 0.07); }
+        .info-item:hover { background: rgba(var(--accent-rgb), 0.08); }
 
         .info-item:nth-child(1) { animation-delay: 0.35s; }
         .info-item:nth-child(2) { animation-delay: 0.42s; }
@@ -381,7 +348,7 @@
             transition: background 0.2s ease;
         }
 
-        .modal-close:hover { background: rgba(208, 188, 255, 0.12); }
+        .modal-close:hover { background: rgba(var(--accent-rgb), 0.14); }
 
         .modal-body {
             padding: 6px 22px 22px;
@@ -463,11 +430,11 @@
             transition: background 0.2s ease;
         }
 
-        .icon-btn:hover { background: rgba(208, 188, 255, 0.12); }
+        .icon-btn:hover { background: rgba(var(--accent-rgb), 0.14); }
         .icon-btn.copied { color: #7ee787; }
         .icon-btn.copied:hover { background: rgba(126, 231, 135, 0.12); }
 
-        /* ---------- NAV ROWS (для модалки навигации) ---------- */
+        /* ---------- NAV ROWS ---------- */
         .nav-row {
             display: flex;
             align-items: center;
@@ -501,8 +468,8 @@
             background: var(--m3-primary-container);
             box-shadow: var(--m3-elevation-1);
         }
-        .nav-icon.blog { background: linear-gradient(135deg, #7c8cff, #4F378B); color: #fff; }
-        .nav-icon.files { background: linear-gradient(135deg, #0E6F9E, #3755A0); color: #fff; }
+        .nav-icon.blog  { background: linear-gradient(135deg, #f0a6ee, #6B1A4A); color: #fff; }
+        .nav-icon.files { background: linear-gradient(135deg, #c084fc, #7B1FA2); color: #fff; }
 
         .nav-body { flex: 1; min-width: 0; }
         .nav-title {
@@ -576,10 +543,26 @@
     </style>
 </head>
 <body>
-    <div class="bg-scene" aria-hidden="true">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+    <!-- ===== animated pink/magenta mesh background ===== -->
+    <div class="bg-svg" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <filter id="blur" filterUnits="userSpaceOnUse" x="0" y="0" width="1000" height="500">
+                    <feGaussianBlur stdDeviation="168" />
+                </filter>
+                <filter id="noise" x="0" y="0" width="100%" height="100%">
+                    <feTurbulence type="fractalNoise" baseFrequency="1" octaves="3" result="turbulence" stitchTiles="stitch" />
+                    <feBlend in="SourceGraphic" in2="turbulence" mode="overlay" />
+                </filter>
+            </defs>
+            <rect id="background" width="100%" height="100%" fill="#000" />
+            <g id="swatches" filter="url(#blur)">
+                <rect class="sw sw1" x="562.9885145610554" y="335.80793931999165" width="486.2729542360395" height="314.70084379637524" fill="#e486c0" />
+                <rect class="sw sw2" x="508.59457305647487" y="-154.58968171822897" width="520.8837829281664" height="377.76183265846726" fill="#941062" />
+                <rect class="sw sw3" x="232.9910043286868"  y="86.5191821125693"  width="379.7059031421261" height="435.08615837993943" fill="#fc82c5" />
+            </g>
+            <rect x="0" y="0" width="1000" height="500" style="mix-blend-mode: luminosity; filter: url(#noise); opacity: 0%"></rect>
+        </svg>
     </div>
 
     <div class="profile-card">
