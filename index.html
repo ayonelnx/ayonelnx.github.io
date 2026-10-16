@@ -14,7 +14,11 @@
             --m3-on-primary: #4A0E32;
             --m3-primary-container: #6B1A4A;
             --m3-on-primary-container: #FFD8F0;
+            --m3-secondary-container: #4A2A3E;
+            --m3-on-secondary-container: #F5D5E8;
             --m3-surface: #141218;
+            --m3-surface-container-low: #1D1B20;
+            --m3-surface-container: #211F26;
             --m3-surface-container-high: #2B2930;
             --m3-surface-container-highest: #36343B;
             --m3-on-surface: #E6E0E9;
@@ -43,7 +47,7 @@
         }
 
         /* ============================================================
-           ФОН: мягкие радиальные градиенты, без filter/blur
+           ФОН: статичные радиальные градиенты, БЕЗ анимации
            ============================================================ */
         .bg-scene {
             position: fixed;
@@ -56,9 +60,6 @@
         .blob {
             position: absolute;
             border-radius: 50%;
-            will-change: transform;
-            transform: translateZ(0);
-            backface-visibility: hidden;
         }
 
         .blob-1 {
@@ -69,7 +70,6 @@
                 rgba(148,16,98,0.35) 25%,
                 rgba(107,26,74,0.18) 50%,
                 transparent 72%);
-            animation: drift1 26s ease-in-out infinite alternate;
         }
 
         .blob-2 {
@@ -80,7 +80,6 @@
                 rgba(107,26,74,0.32) 28%,
                 rgba(60,15,40,0.15) 55%,
                 transparent 75%);
-            animation: drift2 32s ease-in-out infinite alternate;
         }
 
         .blob-3 {
@@ -90,26 +89,10 @@
                 rgba(210,100,168,0.35) 0%,
                 rgba(92,20,64,0.22) 30%,
                 transparent 70%);
-            animation: drift3 22s ease-in-out infinite alternate;
-        }
-
-        @keyframes drift1 {
-            0%   { transform: translate3d(0, 0, 0) scale(1); }
-            50%  { transform: translate3d(9vmax, 6vmax, 0) scale(1.12); }
-            100% { transform: translate3d(-4vmax, 10vmax, 0) scale(0.96); }
-        }
-        @keyframes drift2 {
-            0%   { transform: translate3d(0, 0, 0) scale(1); }
-            50%  { transform: translate3d(-8vmax, -7vmax, 0) scale(1.08); }
-            100% { transform: translate3d(5vmax, -11vmax, 0) scale(1.16); }
-        }
-        @keyframes drift3 {
-            0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-            100% { transform: translate3d(-10vmax, 6vmax, 0) scale(1.2) rotate(40deg); }
         }
 
         /* ============================================================
-           КАРТОЧКА ПРОФИЛЯ — без backdrop-filter
+           КАРТОЧКА ПРОФИЛЯ
            ============================================================ */
         .profile-card {
             background: rgba(43, 41, 48, 0.92);
@@ -222,6 +205,9 @@
             font-size: 16px;
         }
 
+        /* ============================================================
+           СОЦСЕТИ
+           ============================================================ */
         .social-links {
             display: flex;
             gap: 10px;
@@ -290,6 +276,9 @@
         }
         .fab:active { transform: translateY(0) scale(0.95); }
 
+        /* ============================================================
+           МОДАЛЬНЫЕ ОКНА
+           ============================================================ */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -513,6 +502,9 @@
         }
         .nav-row:hover .nav-arrow { color: var(--m3-primary); transform: translateX(4px); }
 
+        /* ============================================================
+           SNACKBAR
+           ============================================================ */
         .snackbar {
             position: fixed;
             left: 50%;
