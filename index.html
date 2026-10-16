@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ============================================================
-           MATERIAL 3 (Material You) — тёмная схема, розово-магентовая
+           MATERIAL 3 — тёмная схема, розово-магентовая
            ============================================================ */
         :root {
             --m3-primary: #F5B5E0;
@@ -52,49 +52,75 @@
         }
 
         /* ============================================================
-           АНИМИРОВАННЫЙ МЕШ-ФОН (розово-магентовый)
+           ФОН: 3 размытых цветных пятна (CSS, GPU-анимация)
            ============================================================ */
-        .bg-svg {
-            position: fixed; inset: 0;
-            z-index: 0;
+        .bg-scene {
+            position: fixed;
+            inset: 0;
             overflow: hidden;
+            z-index: 0;
             pointer-events: none;
+            contain: strict;
         }
-        .bg-svg svg { width: 100%; height: 100%; display: block; }
-        .bg-svg .sw { transform-box: fill-box; transform-origin: center; will-change: transform; }
-        .bg-svg .sw1 { animation: sw1 22s ease-in-out infinite; }
-        .bg-svg .sw2 { animation: sw2 26s ease-in-out infinite; }
-        .bg-svg .sw3 { animation: sw3 30s ease-in-out infinite; }
-        @keyframes sw1 {
-            0%, 100% { transform: translate(0,0) scale(1); }
-            33%      { transform: translate(-70px,-60px) scale(1.12); }
-            66%      { transform: translate(50px,40px) scale(0.94); }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
-        @keyframes sw2 {
-            0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); }
-            33%      { transform: translate(60px,50px) scale(1.08) rotate(5deg); }
-            66%      { transform: translate(-55px,-40px) scale(0.92) rotate(-5deg); }
+
+        /* #fc82c5 — ярко-розовый */
+        .blob-1 {
+            width: 55vmax; height: 55vmax;
+            top: -20vmax; left: -15vmax;
+            background: radial-gradient(circle at 40% 40%, #fc82c5, #941062 60%, transparent 78%);
+            opacity: 0.55;
+            animation: drift1 26s ease-in-out infinite alternate;
         }
-        @keyframes sw3 {
-            0%, 100% { transform: translate(0,0) scale(1); }
-            50%      { transform: translate(70px,-50px) scale(1.15); }
+
+        /* #e486c0 — нежный розовый */
+        .blob-2 {
+            width: 45vmax; height: 45vmax;
+            bottom: -18vmax; right: -12vmax;
+            background: radial-gradient(circle at 60% 60%, #e486c0, #6B1A4A 55%, transparent 78%);
+            opacity: 0.55;
+            animation: drift2 32s ease-in-out infinite alternate;
         }
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background: rgba(14, 6, 18, 0.35);
-            backdrop-filter: blur(2px);
-            z-index: 1;
-            pointer-events: none;
+
+        /* #d264a8 — средний акцент */
+        .blob-3 {
+            width: 35vmax; height: 35vmax;
+            top: 35%; left: 45%;
+            background: radial-gradient(circle at 50% 50%, #d264a8, #5c1440 55%, transparent 78%);
+            opacity: 0.4;
+            animation: drift3 22s ease-in-out infinite alternate;
+        }
+
+        @keyframes drift1 {
+            0%   { transform: translate3d(0, 0, 0) scale(1); }
+            50%  { transform: translate3d(9vmax, 6vmax, 0) scale(1.15); }
+            100% { transform: translate3d(-4vmax, 10vmax, 0) scale(0.95); }
+        }
+        @keyframes drift2 {
+            0%   { transform: translate3d(0, 0, 0) scale(1); }
+            50%  { transform: translate3d(-8vmax, -7vmax, 0) scale(1.1); }
+            100% { transform: translate3d(5vmax, -11vmax, 0) scale(1.2); }
+        }
+        @keyframes drift3 {
+            0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate3d(-10vmax, 6vmax, 0) scale(1.25) rotate(40deg); }
         }
 
         /* ============================================================
            КАРТОЧКА ПРОФИЛЯ
            ============================================================ */
         .profile-card {
-            background: color-mix(in srgb, var(--m3-surface-container-high) 78%, transparent);
-            backdrop-filter: blur(20px) saturate(1.3);
-            -webkit-backdrop-filter: blur(20px) saturate(1.3);
+            background: color-mix(in srgb, var(--m3-surface-container-high) 84%, transparent);
+            backdrop-filter: blur(14px) saturate(1.2);
+            -webkit-backdrop-filter: blur(14px) saturate(1.2);
             border-radius: var(--m3-shape-l);
             box-shadow: var(--m3-elevation-2);
             padding: 40px;
@@ -104,7 +130,7 @@
             gap: 40px;
             align-items: flex-start;
             position: relative;
-            z-index: 2;
+            z-index: 1;
             opacity: 0;
             transform: translateY(28px) scale(0.97);
             animation: cardAppear 0.55s cubic-bezier(0.2, 0, 0, 1) forwards;
@@ -202,67 +228,40 @@
             color: var(--m3-primary);
             font-size: 16px;
         }
-
         /* ============================================================
            СОЦСЕТИ
            ============================================================ */
-        .social-links {
-            display: flex;
-            gap: 10px;
-            margin-top: 26px;
-            flex-wrap: wrap;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: slideIn 0.4s cubic-bezier(0.2, 0, 0, 1) 0.9s forwards;
-        }
-
-        .m3-btn {
-            position: relative;
-            overflow: hidden;
-            min-width: 44px;
-            height: 44px;
-            border-radius: 999px;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-decoration: none;
-            font-family: inherit;
-            font-size: 16px;
-            cursor: pointer;
-            transition: box-shadow 0.25s ease, background 0.25s ease, transform 0.15s ease;
-        }
-
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0.18;
-            transform: scale(0);
-            pointer-events: none;
-            animation: rippleAnim 0.55s ease-out forwards;
-        }
-
-        @keyframes rippleAnim {
-            to { transform: scale(4); opacity: 0; }
-        }
-
         .social-btn {
-            background: var(--m3-secondary-container);
-            color: var(--m3-on-secondary-container);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(var(--accent-rgb), 0.18);
+            color: var(--m3-primary);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
 
-        .social-btn:hover { box-shadow: var(--m3-elevation-1); }
+        .social-btn:hover {
+            background: rgba(var(--accent-rgb), 0.14);
+            border-color: rgba(var(--accent-rgb), 0.45);
+            box-shadow: 0 4px 18px rgba(var(--accent-rgb), 0.22);
+        }
+
         .social-btn:active { transform: scale(0.95); }
 
         .fab {
-            background: var(--m3-primary-container);
-            color: var(--m3-on-primary-container);
-            box-shadow: var(--m3-elevation-2);
+            background: rgba(var(--accent-rgb), 0.16);
+            border: 1px solid rgba(var(--accent-rgb), 0.32);
+            color: var(--m3-primary);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 2px 12px rgba(var(--accent-rgb), 0.12);
         }
 
-        .fab:hover { box-shadow: var(--m3-elevation-3); transform: translateY(-2px); }
+        .fab:hover {
+            background: rgba(var(--accent-rgb), 0.24);
+            border-color: rgba(var(--accent-rgb), 0.55);
+            box-shadow: 0 6px 22px rgba(var(--accent-rgb), 0.32);
+            transform: translateY(-2px);
+        }
         .fab:active { transform: translateY(0) scale(0.95); }
 
         /* ============================================================
@@ -543,26 +542,10 @@
     </style>
 </head>
 <body>
-    <!-- ===== animated pink/magenta mesh background ===== -->
-    <div class="bg-svg" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
-            <defs>
-                <filter id="blur" filterUnits="userSpaceOnUse" x="0" y="0" width="1000" height="500">
-                    <feGaussianBlur stdDeviation="168" />
-                </filter>
-                <filter id="noise" x="0" y="0" width="100%" height="100%">
-                    <feTurbulence type="fractalNoise" baseFrequency="1" octaves="3" result="turbulence" stitchTiles="stitch" />
-                    <feBlend in="SourceGraphic" in2="turbulence" mode="overlay" />
-                </filter>
-            </defs>
-            <rect id="background" width="100%" height="100%" fill="#000" />
-            <g id="swatches" filter="url(#blur)">
-                <rect class="sw sw1" x="562.9885145610554" y="335.80793931999165" width="486.2729542360395" height="314.70084379637524" fill="#e486c0" />
-                <rect class="sw sw2" x="508.59457305647487" y="-154.58968171822897" width="520.8837829281664" height="377.76183265846726" fill="#941062" />
-                <rect class="sw sw3" x="232.9910043286868"  y="86.5191821125693"  width="379.7059031421261" height="435.08615837993943" fill="#fc82c5" />
-            </g>
-            <rect x="0" y="0" width="1000" height="500" style="mix-blend-mode: luminosity; filter: url(#noise); opacity: 0%"></rect>
-        </svg>
+    <div class="bg-scene" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
 
     <div class="profile-card">
