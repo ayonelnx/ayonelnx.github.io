@@ -7,12 +7,13 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
   :root {
-    --accent: #7c8cff;
-    --accent2: #b58cff;
-    --text: #e8eaf2;
-    --muted: #9aa0b4;
-    --card: rgba(255, 255, 255, 0.07);
-    --border: rgba(255, 255, 255, 0.12);
+    --accent: #f0a6ee;
+    --accent2: #c084fc;
+    --accent-rgb: 240, 166, 238;
+    --text: #f2e8f2;
+    --muted: #b3a0b8;
+    --card: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.11);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -20,17 +21,51 @@
     font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
     color: var(--text);
     min-height: 100vh;
-    background: url('https://github.com/ayonelnx/ayonelnx.github.io/blob/main/blog/backgroundofblog.png?raw=true') center/cover fixed no-repeat, #0b0d17;
+    background: #0b0d17;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ---------- animated pink/purple mesh background ---------- */
+  .bg-svg {
+    position: fixed; inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .bg-svg svg { width: 100%; height: 100%; display: block; }
+  .bg-svg .sw { transform-box: fill-box; transform-origin: center; will-change: transform; }
+  .bg-svg .sw1 { animation: sw1 20s ease-in-out infinite; }
+  .bg-svg .sw2 { animation: sw2 24s ease-in-out infinite; }
+  .bg-svg .sw3 { animation: sw3 28s ease-in-out infinite; }
+  .bg-svg .sw4 { animation: sw4 22s ease-in-out infinite; }
+  @keyframes sw1 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(70px,-50px) scale(1.12); }
+    66%      { transform: translate(-40px,60px) scale(0.93); }
+  }
+  @keyframes sw2 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(-80px,40px) scale(1.1); }
+    66%      { transform: translate(60px,-60px) scale(0.95); }
+  }
+  @keyframes sw3 {
+    0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); }
+    33%      { transform: translate(60px,55px) scale(1.08) rotate(6deg); }
+    66%      { transform: translate(-55px,-45px) scale(0.93) rotate(-6deg); }
+  }
+  @keyframes sw4 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(-65px,70px) scale(1.13); }
   }
   body::before {
     content: '';
     position: fixed; inset: 0;
-    background: rgba(8, 10, 20, 0.55);
+    background: rgba(12, 6, 18, 0.42);
     backdrop-filter: blur(2px);
     z-index: -1;
   }
+
   .container { max-width: 860px; margin: 0 auto; padding: 60px 20px 80px; }
 
   /* ---------- header ---------- */
@@ -45,6 +80,7 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: gradientShift 6s linear infinite, fadeDown 0.8s ease both;
+    filter: drop-shadow(0 4px 24px rgba(var(--accent-rgb), 0.28));
   }
   @keyframes gradientShift { to { background-position: 200% center; } }
   .site-subtitle {
@@ -76,8 +112,8 @@
     -webkit-backdrop-filter: blur(10px);
   }
   .search:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(124, 140, 255, 0.18);
+    border-color: rgba(var(--accent-rgb), 0.6);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
     background: rgba(255,255,255,0.09);
   }
   .search::placeholder { color: var(--muted); }
@@ -95,7 +131,7 @@
     transition: color .2s, background .2s;
     cursor: pointer;
   }
-  .crumb:hover { color: var(--accent); background: rgba(255,255,255,0.06); }
+  .crumb:hover { color: var(--accent); background: rgba(var(--accent-rgb), 0.08); }
   .crumb.current { color: var(--text); font-weight: 600; cursor: default; }
   .crumb.current:hover { color: var(--text); background: transparent; }
   .crumb-sep { color: var(--muted); opacity: 0.4; user-select: none; }
@@ -127,8 +163,8 @@
   }
   .file-card:hover {
     transform: translateY(-4px);
-    border-color: var(--accent);
-    box-shadow: 0 12px 34px rgba(124, 140, 255, 0.22);
+    border-color: rgba(var(--accent-rgb), 0.55);
+    box-shadow: 0 12px 36px rgba(var(--accent-rgb), 0.24);
     background: rgba(255,255,255,0.09);
   }
   .file-card:active { transform: translateY(-1px) scale(0.995); }
@@ -137,14 +173,14 @@
     width: 46px; height: 46px; flex-shrink: 0;
     display: grid; place-items: center;
     font-size: 1.4rem;
-    background: rgba(124, 140, 255, 0.12);
+    background: rgba(var(--accent-rgb), 0.12);
     border: 1px solid var(--border);
     border-radius: 12px;
     transition: transform .3s ease, background .3s ease;
   }
   .file-card:hover .file-icon {
     transform: scale(1.08) rotate(-5deg);
-    background: rgba(124, 140, 255, 0.22);
+    background: rgba(var(--accent-rgb), 0.22);
   }
 
   .file-body { flex: 1; min-width: 0; }
@@ -169,7 +205,7 @@
   /* ---------- ripple ---------- */
   .ripple {
     position: absolute; border-radius: 50%;
-    background: rgba(255,255,255,0.3);
+    background: rgba(var(--accent-rgb), 0.32);
     transform: scale(0); pointer-events: none;
     animation: rippleAnim 0.6s ease-out forwards;
   }
@@ -187,9 +223,41 @@
     text-align: center; margin-top: 60px;
     color: var(--muted); font-size: 0.85rem; opacity: 0.7;
   }
+
+  /* ---------- scrollbar ---------- */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(var(--accent-rgb), 0.28);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(var(--accent-rgb), 0.5); }
 </style>
 </head>
 <body>
+<!-- ===== animated pink/purple mesh background ===== -->
+<div class="bg-svg" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <filter id="blur" filterUnits="userSpaceOnUse" x="0" y="0" width="1000" height="500">
+        <feGaussianBlur stdDeviation="168" />
+      </filter>
+      <filter id="noise" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="1" octaves="3" result="turbulence" stitchTiles="stitch" />
+        <feBlend in="SourceGraphic" in2="turbulence" mode="overlay" />
+      </filter>
+    </defs>
+    <rect id="background" width="100%" height="100%" fill="#000" />
+    <g id="swatches" filter="url(#blur)">
+      <rect class="sw sw1" x="592.2932784325493" y="-245.88970911957352" width="429.68369497307026" height="564.9540693584913"  fill="#fee1dc" />
+      <rect class="sw sw2" x="181.08786759658778" y="151.1363482500451"  width="341.91620355312716" height="583.6306850955438"  fill="#f205ec" />
+      <rect class="sw sw3" x="815.3039346701015" y="94.44682406877098"  width="322.07640880594886" height="388.34877692306156" fill="#e285d8" />
+      <rect class="sw sw4" x="673.5606266011433" y="213.77484241620596" width="418.1435841419588"  height="470.5206441440855"  fill="#442070" />
+    </g>
+    <rect x="0" y="0" width="1000" height="500" style="mix-blend-mode: luminosity; filter: url(#noise); opacity: 19%"></rect>
+  </svg>
+</div>
+
 <div class="container">
   <header>
     <h1 class="site-title">Файлы</h1>
