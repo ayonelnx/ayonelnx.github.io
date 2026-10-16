@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio</title>
+    <title>Ayone</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..800&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
@@ -13,7 +13,6 @@
            MATERIAL 3 (Material You) — тёмная схема
            ============================================================ */
         :root {
-            /* M3 baseline тёмные тона (purple) */
             --m3-primary: #D0BCFF;
             --m3-on-primary: #381E72;
             --m3-primary-container: #4F378B;
@@ -52,7 +51,7 @@
         }
 
         /* ============================================================
-           АНИМИРОВАННЫЙ ФОН — плавающие M3-градиентные пятна
+           АНИМИРОВАННЫЙ ФОН
            ============================================================ */
         .bg-scene {
             position: fixed;
@@ -108,7 +107,6 @@
             100% { transform: translate(-10vmax, 6vmax) scale(1.25) rotate(40deg); }
         }
 
-        /* тонкое зерно поверх пятен — глубина Material You */
         .bg-scene::after {
             content: '';
             position: absolute;
@@ -239,7 +237,7 @@
         }
 
         /* ============================================================
-           СОЦСЕТИ — M3 tonal-кнопки
+           СОЦСЕТИ
            ============================================================ */
         .social-links {
             display: flex;
@@ -269,7 +267,6 @@
             transition: box-shadow 0.25s ease, background 0.25s ease, transform 0.15s ease;
         }
 
-        /* Ripple (M3-эффект волны) */
         .ripple {
             position: absolute;
             border-radius: 50%;
@@ -292,7 +289,6 @@
         .social-btn:hover { box-shadow: var(--m3-elevation-1); }
         .social-btn:active { transform: scale(0.95); }
 
-        /* FAB для доната */
         .fab {
             background: var(--m3-primary-container);
             color: var(--m3-on-primary-container);
@@ -303,7 +299,7 @@
         .fab:active { transform: translateY(0) scale(0.95); }
 
         /* ============================================================
-           M3 DIALOG — окно донатов
+           МОДАЛЬНЫЕ ОКНА
            ============================================================ */
         .modal-overlay {
             position: fixed;
@@ -400,7 +396,7 @@
             padding: 0 4px 6px;
         }
 
-        /* строка крипты — M3 list item */
+        /* строка крипты */
         .crypto-row {
             display: flex;
             align-items: center;
@@ -471,8 +467,68 @@
         .icon-btn.copied { color: #7ee787; }
         .icon-btn.copied:hover { background: rgba(126, 231, 135, 0.12); }
 
+        /* ---------- NAV ROWS (для модалки навигации) ---------- */
+        .nav-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: var(--m3-shape-m);
+            background: var(--m3-surface-container-highest);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+
+        .nav-row:hover {
+            background: color-mix(in srgb, var(--m3-surface-container-highest) 72%, var(--m3-primary) 28%);
+        }
+        .nav-row:active { transform: scale(0.98); }
+
+        .nav-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--m3-shape-s);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            color: var(--m3-on-primary-container);
+            background: var(--m3-primary-container);
+            box-shadow: var(--m3-elevation-1);
+        }
+        .nav-icon.blog { background: linear-gradient(135deg, #7c8cff, #4F378B); color: #fff; }
+        .nav-icon.files { background: linear-gradient(135deg, #0E6F9E, #3755A0); color: #fff; }
+
+        .nav-body { flex: 1; min-width: 0; }
+        .nav-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--m3-on-surface);
+            margin-bottom: 3px;
+        }
+        .nav-desc {
+            font-size: 12.5px;
+            color: var(--m3-on-surface-variant);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-arrow {
+            color: var(--m3-on-surface-variant);
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .nav-row:hover .nav-arrow { color: var(--m3-primary); transform: translateX(4px); }
+
         /* ============================================================
-           M3 SNACKBAR — уведомление о копировании
+           SNACKBAR
            ============================================================ */
         .snackbar {
             position: fixed;
@@ -520,7 +576,6 @@
     </style>
 </head>
 <body>
-    <!-- Анимированный фон -->
     <div class="bg-scene" aria-hidden="true">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -551,6 +606,7 @@
                 <a href="https://discord.gg/NzFtENBpgp" target="_blank" class="m3-btn social-btn" title="Discord"><i class="fab fa-discord"></i></a>
                 <a href="https://tiktok.com/@ayonelinux" target="_blank" class="m3-btn social-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
                 <button class="m3-btn fab" id="donateBtn" title="Донат"><i class="fas fa-hand-holding-dollar"></i></button>
+                <button class="m3-btn fab" id="navBtn" title="Навигация"><i class="fas fa-compass"></i></button>
             </div>
         </div>
     </div>
@@ -598,6 +654,40 @@
         </div>
     </div>
 
+    <!-- M3 Dialog: навигация -->
+    <div class="modal-overlay" id="navModal">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="navTitle">
+            <div class="modal-head">
+                <div class="modal-title" id="navTitle">
+                    <span class="title-icon"><i class="fas fa-compass"></i></span>
+                    Куда дальше?
+                </div>
+                <button class="modal-close" id="navClose" title="Закрыть"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-hint">Разделы сайта — выбирай, что посмотреть.</p>
+
+                <a href="/files" class="nav-row">
+                    <div class="nav-icon files"><i class="fas fa-folder-open"></i></div>
+                    <div class="nav-body">
+                        <div class="nav-title">Файлы</div>
+                        <div class="nav-desc">Публичный архив · всё в одном месте</div>
+                    </div>
+                    <span class="nav-arrow"><i class="fas fa-arrow-right"></i></span>
+                </a>
+
+                <a href="/blog" class="nav-row">
+                    <div class="nav-icon blog"><i class="fas fa-pen-nib"></i></div>
+                    <div class="nav-body">
+                        <div class="nav-title">Блог</div>
+                        <div class="nav-desc">Статьи, заметки, апдейты</div>
+                    </div>
+                    <span class="nav-arrow"><i class="fas fa-arrow-right"></i></span>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- M3 Snackbar -->
     <div class="snackbar" id="snackbar">
         <i class="fas fa-check-circle"></i>
@@ -605,11 +695,10 @@
     </div>
 
     <script>
-        // ========== RIPPLE-ЭФФЕКТ (M3) ==========
+        // ========== RIPPLE ==========
         document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.m3-btn, .icon-btn, .modal-close');
+            const btn = e.target.closest('.m3-btn, .icon-btn, .modal-close, .nav-row');
             if (!btn) return;
-
             const rect = btn.getBoundingClientRect();
             const size = Math.max(rect.width, rect.height);
             const ripple = document.createElement('span');
@@ -621,26 +710,36 @@
             setTimeout(() => ripple.remove(), 600);
         });
 
-        // ========== МОДАЛЬНОЕ ОКНО ==========
-        const modal = document.getElementById('donateModal');
-        const donateBtn = document.getElementById('donateBtn');
-        const modalClose = document.getElementById('modalClose');
+        // ========== МОДАЛКИ ==========
+        const donateModal = document.getElementById('donateModal');
+        const donateBtn   = document.getElementById('donateBtn');
+        const modalClose  = document.getElementById('modalClose');
 
-        function openModal() {
-            modal.classList.add('open');
+        const navModal  = document.getElementById('navModal');
+        const navBtn    = document.getElementById('navBtn');
+        const navClose  = document.getElementById('navClose');
+
+        function openModal(m) {
+            m.classList.add('open');
             document.body.style.overflow = 'hidden';
         }
-
-        function closeModal() {
-            modal.classList.remove('open');
+        function closeModal(m) {
+            m.classList.remove('open');
             document.body.style.overflow = '';
         }
 
-        donateBtn.addEventListener('click', openModal);
-        modalClose.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        donateBtn.addEventListener('click', () => openModal(donateModal));
+        modalClose.addEventListener('click', () => closeModal(donateModal));
+        donateModal.addEventListener('click', (e) => { if (e.target === donateModal) closeModal(donateModal); });
+
+        navBtn.addEventListener('click', () => openModal(navModal));
+        navClose.addEventListener('click', () => closeModal(navModal));
+        navModal.addEventListener('click', (e) => { if (e.target === navModal) closeModal(navModal); });
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+            if (e.key !== 'Escape') return;
+            if (donateModal.classList.contains('open')) closeModal(donateModal);
+            if (navModal.classList.contains('open'))    closeModal(navModal);
         });
 
         // ========== КОПИРОВАНИЕ + SNACKBAR ==========
@@ -670,14 +769,12 @@
                     document.execCommand('copy');
                     ta.remove();
                 }
-
                 copyBtn.classList.add('copied');
                 icon.className = 'fas fa-check';
                 setTimeout(() => {
                     copyBtn.classList.remove('copied');
                     icon.className = 'far fa-copy';
                 }, 1500);
-
                 showSnackbar();
             });
         });
