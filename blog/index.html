@@ -1,1 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Блог</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+  :root {
+    --accent: #7c8cff;
+    --accent2: #b58cff;
+    --text: #e8eaf2;
+    --muted: #9aa0b4;
+    --card: rgba(255, 255, 255, 0.07);
+    --border: rgba(255, 255, 255, 0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background: url('https://github.com/ayonelnx/ayonelnx.github.io/blob/main/blog/backgroundofblog.png?raw=true') center/cover fixed no-repeat, #0b0d17;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: rgba(8, 10, 20, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: -1;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 60px 20px 80px; }
 
+  /* Header */
+  header { text-align: center; margin-bottom: 48px; }
+  .site-title {
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(120deg, var(--accent), var(--accent2), var(--accent));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite, fadeDown 0.8s ease both;
+  }
+  @keyframes gradientShift { to { background-position: 200% center; } }
+  .site-subtitle { color: var(--muted); margin-top: 10px; animation: fadeDown 0.8s 0.15s ease both; }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+
+  /* Post cards */
+  .post-list { display: flex; flex-direction: column; gap: 22px; }
+  .post-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px 28px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(.22,.9,.3,1.2), box-shadow 0.3s ease, border-color 0.3s ease;
+    opacity: 0;
+  }
+  .post-card.visible { animation: cardIn 0.6s ease both; }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+  }
+  .post-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(124, 140, 255, 0.25);
+  }
+  .post-card:active { transform: translateY(-1px) scale(0.99); }
+
+  /* ripple on click */
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+    transform: scale(0); pointer-events: none;
+    animation: rippleAnim 0.6s ease-out forwards;
+  }
+  @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+  .post-header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .post-title { font-size: 1.35rem; font-weight: 700; transition: color 0.3s ease; }
+  .post-card:hover .post-title { color: var(--accent); }
+  .post-date {
+    font-size: 0.85rem; color: var(--muted);
+    background: rgba(255,255,255,0.06);
+    padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .post-excerpt { margin-top: 12px; color: var(--muted); line-height: 1.6; }
+  .read-more {
+    margin-top: 14px; display: inline-flex; align-items: center; gap: 6px;
+    color: var(--accent); font-weight: 600; font-size: 0.95rem;
+  }
+  .read-more .arrow { transition: transform 0.3s ease; }
+  .post-card:hover .arrow { transform: translateX(5px); }
+
+  .empty, .error-msg { text-align: center; color: var(--muted); padding: 60px 0; animation: cardIn 0.5s ease both; }
+
+  /* back-to-top */
+  .back-home {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 50px; color: var(--muted); text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  .back-home:hover { color: var(--accent); }
+
+  footer { text-align: center; margin-top: 60px; color: var(--muted); font-size: 0.85rem; opacity: 0.7; }
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1 class="site-title">Aynest</h1>
+  </header>
+
+  <div id="post-list" class="post-list"></div>
+  <div id="status"></div>
+
+  <footer>© ayonelnx · Powered by GitHub Pages</footer>
+</div>
+
+<script>
+const listEl = document.getElementById('post-list');
+const statusEl = document.getElementById('status');
+
+// ---------- markdown helpers ----------
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Extract "# Title" from markdown text
+function extractTitle(md) {
+  const m = md.match(/^#\s+(.+)$/m);
+  return m ? m[1].trim() : 'Без названия';
+}
+
+// Build a short plain-text excerpt (skip the H1 line)
+function makeExcerpt(md, maxLen = 180) {
+  const noTitle = md.replace(/^#\s+.+$/m, '');
+  const plain = noTitle
+    .replace(/```[\s\S]*?```/g, ' ')      // code blocks
+    .replace(/!\[.*?\]\(.*?\)/g, ' ')      // images
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')    // links -> text
+    .replace(/[#>*`_\-]+/g, ' ')           // md syntax
+    .replace(/\s+/g, ' ')
+    .trim();
+  return plain.length > maxLen ? plain.slice(0, maxLen).trimEnd() + '…' : plain;
+}
+
+// Format ISO date -> "16 октября 2026"
+function formatDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// ---------- load posts ----------
+async function loadPosts() {
+  let manifest;
+  try {
+    const r = await fetch('posts.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error('posts.json not found');
+    manifest = await r.json();
+  } catch (e) {
+    statusEl.innerHTML = '<div class="error-msg">Не удалось загрузить posts.json — проверь, что файл лежит рядом с index.html.</div>';
+    return;
+  }
+
+  // sort newest first
+  manifest.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (!manifest.length) {
+    statusEl.innerHTML = '<div class="empty">Пока нет постов. Добавь .md файлы в /blog/posts/ и обнови posts.json ✨</div>';
+    return;
+  }
+
+  for (let i = 0; i < manifest.length; i++) {
+    const meta = manifest[i];
+    let title = meta.title, excerpt = '';
+
+    try {
+      const r = await fetch('posts/' + meta.file, { cache: 'no-store' });
+      if (r.ok) {
+        const md = await r.text();
+        title = extractTitle(md) || title;
+        excerpt = makeExcerpt(md);
+      }
+    } catch (_) { /* use manifest title */ }
+
+    const card = document.createElement('a');
+    card.className = 'post-card';
+    card.href = 'post.html?p=' + encodeURIComponent(meta.file.replace(/\.md$/i, ''));
+    card.innerHTML = `
+      <div class="post-header">
+        <span class="post-date">${formatDate(meta.date)}</span>
+        <h2 class="post-title">${escapeHtml(title)}</h2>
+      </div>
+      <p class="post-excerpt">${escapeHtml(excerpt)}</p>
+      <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
+
+    // staggered appearance
+    setTimeout(() => card.classList.add('visible'), 80 * i);
+
+    // click ripple
+    card.addEventListener('click', function (e) {
+      const rect = card.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+      ripple.style.top  = (e.clientY - rect.top  - size / 2) + 'px';
+      card.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 650);
+    });
+
+    listEl.appendChild(card);
+  }
+}
+
+loadPosts();
+</script>
+</body>
+</html>
