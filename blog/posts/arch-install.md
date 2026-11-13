@@ -4,7 +4,7 @@
 Что нужно сделать, чтобы запустить скрипт:
 1. Скопировать его через команду:
 ```bash
-curl -fLO https://ayone.is-a.dev/files/archauto.sh
+curl -fLO https://ayone.is-a.dev/files/archexy.sh
 ```
 2. Изменить скрипт по своему - обязательный этап. Иначе, если вы на Virtual Machine, вы можете нажать Enter.
 3. Если вы изменили скрипт - запустить:
