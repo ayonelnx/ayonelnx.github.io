@@ -203,13 +203,12 @@ function escapeHtml(s) {
 
 function extractTitle(md) {
   const m = md.match(/^#\s+(.+)$/m);
-  return m ? m[1].trim() : 'Без названия';
+  return m ? m[1].trim() : null;
 }
 
 function makeExcerpt(md, maxLen = 180) {
-  // Убираем заголовок H1
+  if (!md) return '';
   const noTitle = md.replace(/^#\s+.+$/m, '');
-  // Убираем код, картинки, ссылки, спецсимволы
   const plain = noTitle
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/!\[.*?\]\(.*?\)/g, ' ')
@@ -231,120 +230,104 @@ function extractDateFromName(name) {
   return m ? m[1] : '';
 }
 
-/* ---------- ОПТИМИЗИРОВАННАЯ ЗАГРУЗКА ---------- */
+/* ---------- ЗАГРУЗКА ---------- */
 async function loadPosts() {
-  // 1. Используем Git Trees API. Это ОДИН запрос, который возвращает весь список файлов сразу.
-  // Это намного быстрее и надежнее, чем пагинация Contents API.
-  const treeUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/trees/main?recursive=1`;
-  
-  let files = [];
+  // Пробуем обе основные ветки
+  let apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${POSTS_PATH}`;
   
   try {
-    const response = await fetch(treeUrl, {
-      cache: 'no-store',
-      headers: { 'Accept': 'application/vnd.github+json' }
-    });
-
+    const response = await fetch(apiUrl);
+    
+    // Если не найдено, возможно ветка master
     if (!response.ok) {
-        // Пробуем ветку master, если main не найдена (старые репо)
-        if (response.status === 404) {
-             throw new Error("Branch not found"); 
-        }
-        throw new Error('API Error: ' + response.status);
+        console.warn('Default branch failed, trying to handle...');
+        // В простых случаях contents работает без указания ветки, если она дефолтная
+        throw new Error('API Access Failed');
     }
 
-    const data = await response.json();
+    const files = await response.json();
     
-    // Фильтруем дерево: оставляем только файлы из нужной папки с расширением .md
-    files = data.tree.filter(item => 
-      item.type === 'blob' && 
-      item.path.startsWith(POSTS_PATH + '/') && 
-      item.path.endsWith('.md')
-    ).map(item => ({
-        name: item.path.split('/').pop(), // Получаем только имя файла
-        url: `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${item.path}` // Прямая ссылка на raw
-    }));
-
-  } catch (e) {
-    console.error(e);
-    statusEl.innerHTML = '<div class="error-msg">Ошибка соединения с GitHub. Попробуйте обновить страницу позже.</div>';
-    return;
-  }
-
-  // Сортировка: новые сверху (по имени файла, если там есть дата YYYY-MM-DD)
-  files.sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
-
-  if (!files.length) {
-    statusEl.innerHTML = '<div class="empty">Пока нет постов. Добавь .md файлы в /' + POSTS_PATH + ' ✨</div>';
-    return;
-  }
-
-  // 2. Параллельная загрузка контента для превью
-  // Мы не ждем загрузки всех постов подряд, а запускаем процесс отображения карточек сразу,
-  // а текст подгружаем "лениво" или параллельно.
-  
-  // Создаем пустые карточки сразу для скорости UI
-  const cardsMap = new Map();
-  
-  files.forEach((file, index) => {
-    const slug = file.name.replace(/\.md$/i, '');
-    const dateISO = extractDateFromName(file.name);
+    // Фильтруем только .md файлы
+    const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md'));
     
-    const card = document.createElement('a');
-    card.className = 'post-card';
-    card.href = 'post.html?p=' + encodeURIComponent(slug);
-    
-    // Начальная структура без текста (чтобы показать скелет)
-    card.innerHTML = `
-      <div class="post-header">
-        ${dateISO ? `<span class="post-date">${formatDate(dateISO)}</span>` : ''}
-        <h2 class="post-title">Загрузка...</h2>
-      </div>
-      <p class="post-excerpt">Чтение метаданных...</p>
-      <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
+    if (mdFiles.length === 0) {
+       statusEl.innerHTML = '<div class="empty">Папка пуста или нет .md файлов.</div>';
+       return;
+    }
 
-    // Анимация появления
-    setTimeout(() => card.classList.add('visible'), 80 * index);
-    
-    // Эффект Ripple
-    card.addEventListener('click', function (e) {
-      const rect = card.getBoundingClientRect();
-      const ripple = document.createElement('span');
-      ripple.className = 'ripple';
-      const size = Math.max(rect.width, rect.height);
-      ripple.style.width = ripple.style.height = size + 'px';
-      ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-      ripple.style.top  = (e.clientY - rect.top  - size / 2) + 'px';
-      card.appendChild(ripple);
-      setTimeout(() => ripple.remove(), 650);
+    // Сортировка по имени (новые даты обычно выше лексикографически, если формат YYYY-MM-DD)
+    mdFiles.sort((a, b) => b.name.localeCompare(a.name));
+
+    // Создаем карточки СРАЗУ, чтобы интерфейс не висел
+    mdFiles.forEach((file, index) => {
+        const slug = file.name.replace(/\.md$/i, '');
+        const dateISO = extractDateFromName(file.name);
+        
+        // Используем raw URL для загрузки текста - он быстрее и имеет другие лимиты
+        const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${POSTS_PATH}/${file.name}`;
+        // Запасной вариант для master, если main не сработает при клике, но для превью попробуем main
+        
+        const card = document.createElement('a');
+        card.className = 'post-card';
+        card.href = 'post.html?p=' + encodeURIComponent(slug);
+        
+        // Начальный вид (скелет)
+        card.innerHTML = `
+          <div class="post-header">
+            ${dateISO ? `<span class="post-date">${formatDate(dateISO)}</span>` : ''}
+            <h2 class="post-title">${escapeHtml(slug.replace(/-/g, ' '))}</h2>
+          </div>
+          <p class="post-excerpt">Загрузка превью...</p>
+          <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
+
+        // Анимация
+        setTimeout(() => card.classList.add('visible'), 50 * index);
+        
+        // Ripple effect
+        card.addEventListener('click', function(e) {
+            const rect = card.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            card.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 650);
+        });
+
+        listEl.appendChild(card);
+
+        // Фоновая загрузка текста для этой карточки
+        fetch(rawUrl)
+            .then(res => res.text())
+            .then(text => {
+                const title = extractTitle(text);
+                const excerpt = makeExcerpt(text);
+                
+                if (title) card.querySelector('.post-title').textContent = title;
+                if (excerpt) card.querySelector('.post-excerpt').textContent = excerpt;
+            })
+            .catch(err => {
+                // Если main не сработал, пробуем master (редкий кейс)
+                fetch(rawUrl.replace('/main/', '/master/'))
+                    .then(res => res.text())
+                    .then(text => {
+                        const title = extractTitle(text);
+                        const excerpt = makeExcerpt(text);
+                        if (title) card.querySelector('.post-title').textContent = title;
+                        if (excerpt) card.querySelector('.post-excerpt').textContent = excerpt;
+                    })
+                    .catch(() => {
+                        card.querySelector('.post-excerpt').textContent = "Не удалось загрузить текст.";
+                    });
+            });
     });
 
-    listEl.appendChild(card);
-    cardsMap.set(file.url, { card, titleEl: card.querySelector('.post-title'), excerptEl: card.querySelector('.post-excerpt'), defaultTitle: slug });
-  });
-
-  // 3. Фоновая загрузка текстов
-  // Используем Promise.allSettled, чтобы ошибка одного поста не ломала остальные
-  const fetchPromises = files.map(file => 
-    fetch(file.url, { cache: 'no-store' })
-      .then(r => r.ok ? r.text() : null)
-      .then(md => {
-        if (!md) return;
-        const info = cardsMap.get(file.url);
-        if (info) {
-            const title = extractTitle(md) || info.defaultTitle;
-            const excerpt = makeExcerpt(md);
-            
-            // Обновляем DOM только если данные пришли
-            info.titleEl.textContent = title;
-            info.excerptEl.textContent = excerpt;
-        }
-      })
-      .catch(err => console.warn('Failed to load preview for', file.name, err))
-  );
-
-  // Ждем завершения всех запросов (необязательно, но полезно для отладки)
-  Promise.allSettled(fetchPromises);
+  } catch (error) {
+    console.error(error);
+    statusEl.innerHTML = '<div class="error-msg">Проверьте подключение к интернету или имя репозитория.<br><small>' + error.message + '</small></div>';
+  }
 }
 
 loadPosts();
