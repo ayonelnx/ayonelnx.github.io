@@ -193,7 +193,8 @@ const statusEl = document.getElementById('status');
 
 const REPO_OWNER = 'ayonelnx';
 const REPO_NAME  = 'ayonelnx.github.io';
-const POSTS_PATH = 'blog/posts';
+// Попробуем несколько вариантов путей
+const POSSIBLE_PATHS = ['blog/posts', 'blog', '_posts', 'posts'];
 
 function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -223,124 +224,110 @@ function formatDate(iso) {
   return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+async function tryFetchPath(path) {
+    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+    const response = await fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
+    if (!response.ok) return null;
+    return await response.json();
+}
+
 async function loadPosts() {
-  // Используем основной API содержимого
-  const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${POSTS_PATH}`;
+  let files = null;
+  let usedPath = '';
 
-  try {
-    // Добавляем заголовок Accept, чтобы GitHub точно понял, что мы хотим JSON
-    const response = await fetch(apiUrl, {
-        headers: {
-            'Accept': 'application/vnd.github.v3+json'
-        }
-    });
-
-    if (!response.ok) {
-        if (response.status === 404) {
-            throw new Error(`Путь не найден. Проверь, существует ли папка "${POSTS_PATH}" в репозитории.`);
-        } else if (response.status === 403) {
-            throw new Error('Превышен лимит запросов GitHub API. Подожди час или используй токен.');
-        } else {
-            throw new Error(`Ошибка API: ${response.status}`);
-        }
-    }
-
-    const files = await response.json();
-
-    // Фильтруем только markdown файлы
-    const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md'));
-
-    if (mdFiles.length === 0) {
-       statusEl.innerHTML = '<div class="empty">В папке нет файлов .md</div>';
-       return;
-    }
-
-    // Сортируем по имени (если в имени дата YYYY-MM-DD, новые будут сверху)
-    mdFiles.sort((a, b) => b.name.localeCompare(a.name));
-
-    mdFiles.forEach((file, index) => {
-        const slug = file.name.replace(/\.md$/i, '');
-        // Извлекаем дату из имени файла, если она там есть
-        const dateMatch = file.name.match(/(\d{4}-\d{2}-\d{2})/);
-        const dateISO = dateMatch ? dateMatch[1] : null;
-
-        // Создаем карточку сразу
-        const card = document.createElement('a');
-        card.className = 'post-card';
-        card.href = `post.html?p=${encodeURIComponent(slug)}`;
-
-        // Временный контент
-        card.innerHTML = `
-          <div class="post-header">
-            ${dateISO ? `<span class="post-date">${formatDate(dateISO)}</span>` : ''}
-            <h2 class="post-title">${escapeHtml(slug.replace(/-/g, ' '))}</h2>
-          </div>
-          <p class="post-excerpt">Загрузка...</p>
-          <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
-
-        // Анимация появления
-        setTimeout(() => card.classList.add('visible'), 50 * index);
-
-        // Эффект клика
-        card.addEventListener('click', function(e) {
-            const rect = card.getBoundingClientRect();
-            const ripple = document.createElement('span');
-            ripple.className = 'ripple';
-            const size = Math.max(rect.width, rect.height);
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-            card.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 650);
-        });
-
-        listEl.appendChild(card);
-
-        // Загружаем текст поста фоном с raw.githubusercontent.com
-        // Это быстрее и не тратит лимиты API так сильно
-        const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${POSTS_PATH}/${file.name}`;
-
-        fetch(rawUrl)
-            .then(res => {
-                if (!res.ok) throw new Error('Raw fetch failed');
-                return res.text();
-            })
-            .then(text => {
-                const title = extractTitle(text);
-                const excerpt = makeExcerpt(text);
-
-                if (title) card.querySelector('.post-title').textContent = title;
-                card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
-            })
-            .catch(err => {
-                // Если ветка main не найдена, пробуем master
-                const rawUrlMaster = rawUrl.replace('/main/', '/master/');
-                fetch(rawUrlMaster)
-                    .then(res => res.text())
-                    .then(text => {
-                        const title = extractTitle(text);
-                        const excerpt = makeExcerpt(text);
-                        if (title) card.querySelector('.post-title').textContent = title;
-                        card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
-                    })
-                    .catch(() => {
-                        card.querySelector('.post-excerpt').textContent = "Ошибка загрузки текста";
-                    });
-            });
-    });
-
-  } catch (error) {
-    console.error(error);
-    statusEl.innerHTML = `
-        <div class="error-msg">
-            <strong>Не удалось загрузить посты.</strong><br>
-            ${error.message}<br><br>
-            <small>Убедись, что:</small><br>
-            <small>1. Репозиторий публичный.</small><br>
-            <small>2. Папка <code>${POSTS_PATH}</code> существует.</small><br>
-            <small>3. Ты открыл сайт через HTTPS (GitHub Pages), а не как файл.</small>
-        </div>`;
+  // Ищем правильную папку
+  for (const path of POSSIBLE_PATHS) {
+      const data = await tryFetchPath(path);
+      if (data) {
+          files = data;
+          usedPath = path;
+          break;
+      }
   }
+
+  if (!files) {
+      // Если ничего не нашли, покажем пользователю, что вообще есть в репо
+      statusEl.innerHTML = '<div class="error-msg">Не удалось найти посты в стандартных папках.<br>Проверь консоль браузера (F12), там список доступных файлов.</div>';
+      
+      // Отладка: покажем содержимое корня blog
+      const rootBlog = await tryFetchPath('blog');
+      if (rootBlog) {
+          console.log('Содержимое папки blog:', rootBlog);
+          let debugList = '<ul style="text-align:left; display:inline-block;">';
+          rootBlog.forEach(f => debugList += `<li>${f.name} (${f.type})</li>`);
+          debugList += '</ul>';
+          statusEl.innerHTML += `<br><details><summary>Что я вижу в папке /blog:</summary>${debugList}</details>`;
+      }
+      return;
+  }
+
+  // Фильтруем только markdown файлы
+  const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md'));
+
+  if (mdFiles.length === 0) {
+     statusEl.innerHTML = `<div class="empty">В папке "${usedPath}" нет файлов .md</div>`;
+     return;
+  }
+
+  mdFiles.sort((a, b) => b.name.localeCompare(a.name));
+
+  mdFiles.forEach((file, index) => {
+      const slug = file.name.replace(/\.md$/i, '');
+      const dateMatch = file.name.match(/(\d{4}-\d{2}-\d{2})/);
+      const dateISO = dateMatch ? dateMatch[1] : null;
+
+      const card = document.createElement('a');
+      card.className = 'post-card';
+      // Важно: убедись, что post.html лежит в той же папке, что и index.html
+      card.href = `post.html?p=${encodeURIComponent(slug)}`; 
+      
+      card.innerHTML = `
+        <div class="post-header">
+          ${dateISO ? `<span class="post-date">${formatDate(dateISO)}</span>` : ''}
+          <h2 class="post-title">${escapeHtml(slug.replace(/-/g, ' '))}</h2>
+        </div>
+        <p class="post-excerpt">Загрузка превью...</p>
+        <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
+
+      setTimeout(() => card.classList.add('visible'), 50 * index);
+      
+      card.addEventListener('click', function(e) {
+          const rect = card.getBoundingClientRect();
+          const ripple = document.createElement('span');
+          ripple.className = 'ripple';
+          const size = Math.max(rect.width, rect.height);
+          ripple.style.width = ripple.style.height = size + 'px';
+          ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+          ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+          card.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 650);
+      });
+
+      listEl.appendChild(card);
+
+      // Загрузка текста
+      const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${usedPath}/${file.name}`;
+      
+      fetch(rawUrl)
+          .then(res => res.text())
+          .then(text => {
+              const title = extractTitle(text);
+              const excerpt = makeExcerpt(text);
+              if (title) card.querySelector('.post-title').textContent = title;
+              card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
+          })
+          .catch(() => {
+              // Пробуем master ветку
+              fetch(rawUrl.replace('/main/', '/master/'))
+                  .then(res => res.text())
+                  .then(text => {
+                      const title = extractTitle(text);
+                      const excerpt = makeExcerpt(text);
+                      if (title) card.querySelector('.post-title').textContent = title;
+                      card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
+                  });
+          });
+  });
 }
 
 loadPosts();
