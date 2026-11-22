@@ -191,12 +191,10 @@
 const listEl = document.getElementById('post-list');
 const statusEl = document.getElementById('status');
 
-/* ---------- настройки репозитория ---------- */
 const REPO_OWNER = 'ayonelnx';
 const REPO_NAME  = 'ayonelnx.github.io';
 const POSTS_PATH = 'blog/posts';
 
-/* ---------- markdown helpers ---------- */
 function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -225,65 +223,65 @@ function formatDate(iso) {
   return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function extractDateFromName(name) {
-  const m = name.match(/(\d{4}-\d{2}-\d{2})/);
-  return m ? m[1] : '';
-}
-
-/* ---------- ЗАГРУЗКА ---------- */
 async function loadPosts() {
-  // Пробуем обе основные ветки
-  let apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${POSTS_PATH}`;
-  
+  // Используем основной API содержимого
+  const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${POSTS_PATH}`;
+
   try {
-    const response = await fetch(apiUrl);
-    
-    // Если не найдено, возможно ветка master
+    // Добавляем заголовок Accept, чтобы GitHub точно понял, что мы хотим JSON
+    const response = await fetch(apiUrl, {
+        headers: {
+            'Accept': 'application/vnd.github.v3+json'
+        }
+    });
+
     if (!response.ok) {
-        console.warn('Default branch failed, trying to handle...');
-        // В простых случаях contents работает без указания ветки, если она дефолтная
-        throw new Error('API Access Failed');
+        if (response.status === 404) {
+            throw new Error(`Путь не найден. Проверь, существует ли папка "${POSTS_PATH}" в репозитории.`);
+        } else if (response.status === 403) {
+            throw new Error('Превышен лимит запросов GitHub API. Подожди час или используй токен.');
+        } else {
+            throw new Error(`Ошибка API: ${response.status}`);
+        }
     }
 
     const files = await response.json();
-    
-    // Фильтруем только .md файлы
+
+    // Фильтруем только markdown файлы
     const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md'));
-    
+
     if (mdFiles.length === 0) {
-       statusEl.innerHTML = '<div class="empty">Папка пуста или нет .md файлов.</div>';
+       statusEl.innerHTML = '<div class="empty">В папке нет файлов .md</div>';
        return;
     }
 
-    // Сортировка по имени (новые даты обычно выше лексикографически, если формат YYYY-MM-DD)
+    // Сортируем по имени (если в имени дата YYYY-MM-DD, новые будут сверху)
     mdFiles.sort((a, b) => b.name.localeCompare(a.name));
 
-    // Создаем карточки СРАЗУ, чтобы интерфейс не висел
     mdFiles.forEach((file, index) => {
         const slug = file.name.replace(/\.md$/i, '');
-        const dateISO = extractDateFromName(file.name);
-        
-        // Используем raw URL для загрузки текста - он быстрее и имеет другие лимиты
-        const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${POSTS_PATH}/${file.name}`;
-        // Запасной вариант для master, если main не сработает при клике, но для превью попробуем main
-        
+        // Извлекаем дату из имени файла, если она там есть
+        const dateMatch = file.name.match(/(\d{4}-\d{2}-\d{2})/);
+        const dateISO = dateMatch ? dateMatch[1] : null;
+
+        // Создаем карточку сразу
         const card = document.createElement('a');
         card.className = 'post-card';
-        card.href = 'post.html?p=' + encodeURIComponent(slug);
-        
-        // Начальный вид (скелет)
+        card.href = `post.html?p=${encodeURIComponent(slug)}`;
+
+        // Временный контент
         card.innerHTML = `
           <div class="post-header">
             ${dateISO ? `<span class="post-date">${formatDate(dateISO)}</span>` : ''}
             <h2 class="post-title">${escapeHtml(slug.replace(/-/g, ' '))}</h2>
           </div>
-          <p class="post-excerpt">Загрузка превью...</p>
+          <p class="post-excerpt">Загрузка...</p>
           <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
 
-        // Анимация
+        // Анимация появления
         setTimeout(() => card.classList.add('visible'), 50 * index);
-        
-        // Ripple effect
+
+        // Эффект клика
         card.addEventListener('click', function(e) {
             const rect = card.getBoundingClientRect();
             const ripple = document.createElement('span');
@@ -298,35 +296,50 @@ async function loadPosts() {
 
         listEl.appendChild(card);
 
-        // Фоновая загрузка текста для этой карточки
+        // Загружаем текст поста фоном с raw.githubusercontent.com
+        // Это быстрее и не тратит лимиты API так сильно
+        const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${POSTS_PATH}/${file.name}`;
+
         fetch(rawUrl)
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) throw new Error('Raw fetch failed');
+                return res.text();
+            })
             .then(text => {
                 const title = extractTitle(text);
                 const excerpt = makeExcerpt(text);
-                
+
                 if (title) card.querySelector('.post-title').textContent = title;
-                if (excerpt) card.querySelector('.post-excerpt').textContent = excerpt;
+                card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
             })
             .catch(err => {
-                // Если main не сработал, пробуем master (редкий кейс)
-                fetch(rawUrl.replace('/main/', '/master/'))
+                // Если ветка main не найдена, пробуем master
+                const rawUrlMaster = rawUrl.replace('/main/', '/master/');
+                fetch(rawUrlMaster)
                     .then(res => res.text())
                     .then(text => {
                         const title = extractTitle(text);
                         const excerpt = makeExcerpt(text);
                         if (title) card.querySelector('.post-title').textContent = title;
-                        if (excerpt) card.querySelector('.post-excerpt').textContent = excerpt;
+                        card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
                     })
                     .catch(() => {
-                        card.querySelector('.post-excerpt').textContent = "Не удалось загрузить текст.";
+                        card.querySelector('.post-excerpt').textContent = "Ошибка загрузки текста";
                     });
             });
     });
 
   } catch (error) {
     console.error(error);
-    statusEl.innerHTML = '<div class="error-msg">Проверьте подключение к интернету или имя репозитория.<br><small>' + error.message + '</small></div>';
+    statusEl.innerHTML = `
+        <div class="error-msg">
+            <strong>Не удалось загрузить посты.</strong><br>
+            ${error.message}<br><br>
+            <small>Убедись, что:</small><br>
+            <small>1. Репозиторий публичный.</small><br>
+            <small>2. Папка <code>${POSTS_PATH}</code> существует.</small><br>
+            <small>3. Ты открыл сайт через HTTPS (GitHub Pages), а не как файл.</small>
+        </div>`;
   }
 }
 
