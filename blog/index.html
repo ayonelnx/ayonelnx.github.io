@@ -3,330 +3,263 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Блог</title>
+<title>Ayblog | NixOS & Linux</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=JetBrains+Mono:wght@400;500&display=swap');
+  
   :root {
     --accent: #6ee7b7;
-    --accent2: #34d399;
-    --accent-rgb: 110, 231, 183;
+    --accent-glow: rgba(110, 231, 183, 0.15);
     --text: #e6f2ec;
-    --muted: #93a89c;
-    --card: rgba(255, 255, 255, 0.06);
-    --border: rgba(255, 255, 255, 0.11);
+    --text-secondary: #93a89c;
+    --bg: #0a0d10;
+    --card-bg: rgba(20, 25, 30, 0.6);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --radius: 20px;
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  
   body {
-    font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Google Sans', system-ui, sans-serif;
+    background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    background: #0a0d10;
     overflow-x: hidden;
-    position: relative;
+    line-height: 1.6;
   }
 
-  /* ---------- static gradient background ---------- */
-  .bg-scene {
-    position: fixed;
-    inset: 0;
-    overflow: hidden;
-    z-index: -1;
-    pointer-events: none;
-  }
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-  }
-  .blob-1 {
-    width: 70vmax; height: 70vmax;
-    top: -30vmax; left: -25vmax;
-    background: radial-gradient(circle at center,
-      rgba(28,249,54,0.28) 0%,
-      rgba(9,83,63,0.32) 25%,
-      rgba(37,136,32,0.16) 50%,
-      transparent 72%);
-  }
-  .blob-2 {
-    width: 60vmax; height: 60vmax;
-    bottom: -28vmax; right: -22vmax;
-    background: radial-gradient(circle at center,
-      rgba(186,178,12,0.24) 0%,
-      rgba(37,136,32,0.26) 28%,
-      rgba(9,83,63,0.14) 55%,
-      transparent 75%);
-  }
-  .blob-3 {
-    width: 50vmax; height: 50vmax;
-    top: 25%; left: 35%;
-    background: radial-gradient(circle at center,
-      rgba(28,249,54,0.14) 0%,
-      rgba(9,83,63,0.2) 30%,
-      transparent 70%);
+  /* Фоновые градиенты */
+  .ambient-light {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: 
+      radial-gradient(circle at 15% 30%, rgba(110, 231, 183, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(52, 211, 153, 0.06) 0%, transparent 40%);
   }
 
-  .container { max-width: 860px; margin: 0 auto; padding: 60px 20px 80px; }
+  .container { max-width: 800px; margin: 0 auto; padding: 80px 24px; }
 
-  /* ---------- header ---------- */
-  header { text-align: center; margin-bottom: 48px; }
-  .site-title {
-    font-size: clamp(2.2rem, 6vw, 3.4rem);
+  /* Шапка */
+  header { text-align: center; margin-bottom: 60px; animation: fadeDown 0.8s ease both; }
+  .logo {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
     font-weight: 800;
-    letter-spacing: 1px;
-    background: linear-gradient(120deg, var(--accent), var(--accent2), var(--accent));
-    background-size: 200% auto;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent), #fff);
     -webkit-background-clip: text;
-    background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: gradientShift 6s linear infinite, fadeDown 0.8s ease both;
-    filter: drop-shadow(0 4px 24px rgba(var(--accent-rgb), 0.28));
+    margin-bottom: 12px;
   }
-  @keyframes gradientShift { to { background-position: 200% center; } }
-  .site-subtitle { color: var(--muted); margin-top: 10px; animation: fadeDown 0.8s 0.15s ease both; }
-  @keyframes fadeDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: none; } }
+  .subtitle { color: var(--text-secondary); font-size: 1.1rem; }
 
-  /* ---------- post cards ---------- */
-  .post-list { display: flex; flex-direction: column; gap: 22px; }
+  /* Список постов */
+  .post-list { display: flex; flex-direction: column; gap: 20px; }
+  
   .post-card {
     display: block;
     text-decoration: none;
     color: inherit;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 26px 28px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.3s cubic-bezier(.22,.9,.3,1.2), box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
-    opacity: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 0; transform: translateY(20px);
+    position: relative; overflow: hidden;
   }
-  .post-card.visible { animation: cardIn 0.6s ease both; }
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(30px) scale(0.97); }
-    to   { opacity: 1; transform: none; }
-  }
+  
+  .post-card.visible { opacity: 1; transform: translateY(0); }
+  
   .post-card:hover {
-    transform: translateY(-5px) scale(1.01);
-    border-color: rgba(var(--accent-rgb), 0.55);
-    background: rgba(255,255,255,0.09);
-    box-shadow: 0 14px 44px rgba(var(--accent-rgb), 0.22);
+    transform: translateY(-4px);
+    border-color: rgba(110, 231, 183, 0.3);
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), 0 0 20px var(--accent-glow);
+    background: rgba(30, 38, 45, 0.7);
   }
-  .post-card:active { transform: translateY(-1px) scale(0.99); }
 
-  .ripple {
-    position: absolute; border-radius: 50%;
-    background: rgba(var(--accent-rgb), 0.35);
-    transform: scale(0); pointer-events: none;
-    animation: rippleAnim 0.6s ease-out forwards;
+  .meta-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  
+  .date-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(110, 231, 183, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(110, 231, 183, 0.2);
   }
-  @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
-  .post-header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-  .post-title { font-size: 1.35rem; font-weight: 700; transition: color 0.3s ease; }
+  .post-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+  }
   .post-card:hover .post-title { color: var(--accent); }
-  .post-date {
-    font-size: 0.85rem; color: var(--muted);
-    background: rgba(255,255,255,0.06);
-    padding: 4px 12px; border-radius: 999px;
-    border: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  .post-excerpt { margin-top: 12px; color: var(--muted); line-height: 1.6; }
-  .read-more {
-    margin-top: 14px; display: inline-flex; align-items: center; gap: 6px;
-    color: var(--accent); font-weight: 600; font-size: 0.95rem;
-  }
-  .read-more .arrow { transition: transform 0.3s ease; }
-  .post-card:hover .arrow { transform: translateX(5px); }
 
-  .empty, .error-msg { text-align: center; color: var(--muted); padding: 60px 0; animation: cardIn 0.5s ease both; line-height: 1.6; }
-  .error-msg code {
-    background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 6px;
-    border: 1px solid var(--border); color: #ffe08a;
-    font-family: 'Consolas', 'Fira Code', monospace; font-size: 0.9em;
+  .excerpt {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
-  .back-home {
-    display: inline-flex; align-items: center; gap: 8px;
-    margin-top: 50px; color: var(--muted); text-decoration: none;
-    transition: color 0.3s ease;
+  .read-indicator {
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+    opacity: 0.8; transition: opacity 0.2s;
   }
-  .back-home:hover { color: var(--accent); }
+  .post-card:hover .read-indicator { opacity: 1; }
 
-  footer { text-align: center; margin-top: 60px; color: var(--muted); font-size: 0.85rem; opacity: 0.7; }
-
-  /* ---------- scrollbar ---------- */
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(var(--accent-rgb), 0.25);
-    border-radius: 10px;
+  /* Статусы и ошибки */
+  .status-msg {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-secondary);
+    animation: fadeDown 0.5s ease both;
   }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(var(--accent-rgb), 0.45); }
+  .status-msg code {
+    background: rgba(255,255,255,0.05);
+    padding: 2px 6px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+  }
+
+  footer {
+    text-align: center; margin-top: 80px; padding-top: 40px;
+    border-top: 1px solid var(--card-border);
+    color: var(--text-secondary); font-size: 0.85rem;
+  }
+
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 </style>
 <base target="_blank">
 </head>
 <body>
-<!-- static gradient background -->
-<div class="bg-scene" aria-hidden="true">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-</div>
+
+<div class="ambient-light"></div>
 
 <div class="container">
   <header>
-    <h1 class="site-title">Ayblog</h1>
+    <h1 class="logo">Ayblog</h1>
+    <p class="subtitle">Заметки о Linux, NixOS и жизни без фризов</p>
   </header>
 
   <div id="post-list" class="post-list"></div>
   <div id="status"></div>
 
-  <footer>© ayonelnx · Powered by GitHub Pages</footer>
+  <footer>
+    © 2026 ayonelnx · Built with raw GitHub API
+  </footer>
 </div>
 
 <script>
 const listEl = document.getElementById('post-list');
 const statusEl = document.getElementById('status');
 
-const REPO_OWNER = 'ayonelnx';
-const REPO_NAME  = 'ayonelnx.github.io';
-// Попробуем несколько вариантов путей
-const POSSIBLE_PATHS = ['blog/posts', 'blog', '_posts', 'posts'];
+// КОНФИГУРАЦИЯ
+const CONFIG = {
+  owner: 'ayonelnx',
+  repo: 'ayonelnx.github.io',
+  // Скрипт сам попробует эти пути по порядку
+  pathsToTry: ['blog/posts', 'blog', 'posts', ''], 
+  branch: 'main' // Если не работает, скрипт сам попробует 'master'
+};
 
-function escapeHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// Утилиты
+const escapeHtml = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const extractTitle = md => { const m = md.match(/^#\s+(.+)$/m); return m ? m[1].trim() : null; };
+const makeExcerpt = (md, len=160) => {
+  if(!md) return '';
+  const clean = md.replace(/^#\s+.+$/m,'').replace(/```[\s\S]*?```/g,'').replace(/!\[.*?\]\(.*?\)/g,'')
+    .replace(/\[(.*?)\]\(.*?\)/g,'$1').replace(/[#>*`_\-]+/g,' ').replace(/\s+/g,' ').trim();
+  return clean.length > len ? clean.slice(0,len)+'…' : clean;
+};
+const fmtDate = iso => new Date(iso).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
 
-function extractTitle(md) {
-  const m = md.match(/^#\s+(.+)$/m);
-  return m ? m[1].trim() : null;
-}
-
-function makeExcerpt(md, maxLen = 180) {
-  if (!md) return '';
-  const noTitle = md.replace(/^#\s+.+$/m, '');
-  const plain = noTitle
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/!\[.*?\]\(.*?\)/g, ' ')
-    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
-    .replace(/[#>*`_\-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return plain.length > maxLen ? plain.slice(0, maxLen).trimEnd() + '…' : plain;
-}
-
-function formatDate(iso) {
-  const d = new Date(iso);
-  if (isNaN(d)) return iso;
-  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-async function tryFetchPath(path) {
-    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
-    const response = await fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
-    if (!response.ok) return null;
-    return await response.json();
+async function fetchJson(url) {
+  const r = await fetch(url, {headers:{'Accept':'application/vnd.github.v3+json'}});
+  return r.ok ? r.json() : null;
 }
 
 async function loadPosts() {
-  let files = null;
-  let usedPath = '';
-
-  // Ищем правильную папку
-  for (const path of POSSIBLE_PATHS) {
-      const data = await tryFetchPath(path);
-      if (data) {
-          files = data;
-          usedPath = path;
-          break;
-      }
+  statusEl.innerHTML = '<div class="status-msg">Поиск постов в репозитории...</div>';
+  
+  let files = null, usedPath = '';
+  
+  // 1. Ищем правильную папку
+  for (const path of CONFIG.pathsToTry) {
+    const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`;
+    const data = await fetchJson(url);
+    if (data && Array.isArray(data)) {
+      files = data.filter(f => f.type === 'file' && f.name.endsWith('.md'));
+      if (files.length > 0) { usedPath = path; break; }
+    }
   }
 
-  if (!files) {
-      // Если ничего не нашли, покажем пользователю, что вообще есть в репо
-      statusEl.innerHTML = '<div class="error-msg">Не удалось найти посты в стандартных папках.<br>Проверь консоль браузера (F12), там список доступных файлов.</div>';
-      
-      // Отладка: покажем содержимое корня blog
-      const rootBlog = await tryFetchPath('blog');
-      if (rootBlog) {
-          console.log('Содержимое папки blog:', rootBlog);
-          let debugList = '<ul style="text-align:left; display:inline-block;">';
-          rootBlog.forEach(f => debugList += `<li>${f.name} (${f.type})</li>`);
-          debugList += '</ul>';
-          statusEl.innerHTML += `<br><details><summary>Что я вижу в папке /blog:</summary>${debugList}</details>`;
-      }
-      return;
+  // 2. Обработка отсутствия файлов
+  if (!files || files.length === 0) {
+    statusEl.innerHTML = `
+      <div class="status-msg">
+        Посты не найдены.<br>
+        Убедись, что в репозитории есть <code>.md</code> файлы в папке <code>blog/posts</code> или <code>blog</code>.<br>
+        <small style="opacity:0.6">Проверь консоль (F12) для отладки.</small>
+      </div>`;
+    console.log('Доступные пути для проверки:', CONFIG.pathsToTry);
+    return;
   }
 
-  // Фильтруем только markdown файлы
-  const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md'));
+  statusEl.innerHTML = '';
+  files.sort((a,b) => b.name.localeCompare(a.name));
 
-  if (mdFiles.length === 0) {
-     statusEl.innerHTML = `<div class="empty">В папке "${usedPath}" нет файлов .md</div>`;
-     return;
-  }
+  // 3. Рендер карточек
+  files.forEach((file, i) => {
+    const slug = file.name.replace(/\.md$/i,'');
+    const dateMatch = file.name.match(/(\d{4}-\d{2}-\d{2})/);
+    
+    const card = document.createElement('a');
+    card.className = 'post-card';
+    card.href = `post.html?p=${encodeURIComponent(slug)}`;
+    card.style.transitionDelay = `${i * 0.05}s`;
+    
+    card.innerHTML = `
+      <div class="meta-row">
+        ${dateMatch ? `<span class="date-badge">${fmtDate(dateMatch[1])}</span>` : ''}
+      </div>
+      <h2 class="post-title">${escapeHtml(slug.replace(/-/g,' '))}</h2>
+      <p class="excerpt">Загрузка содержания...</p>
+      <div class="read-indicator">Открыть пост <span>→</span></div>
+    `;
 
-  mdFiles.sort((a, b) => b.name.localeCompare(a.name));
+    listEl.appendChild(card);
+    setTimeout(() => card.classList.add('visible'), 50);
 
-  mdFiles.forEach((file, index) => {
-      const slug = file.name.replace(/\.md$/i, '');
-      const dateMatch = file.name.match(/(\d{4}-\d{2}-\d{2})/);
-      const dateISO = dateMatch ? dateMatch[1] : null;
+    // 4. Загрузка текста через RAW (быстро и без лимитов)
+    const tryLoadText = async (branch) => {
+      const url = `https://raw.githubusercontent.com/${CONFIG.owner}/${CONFIG.repo}/${branch}/${usedPath}/${file.name}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('404');
+        const md = await res.text();
+        const title = extractTitle(md);
+        const excerpt = makeExcerpt(md);
+        
+        if(title) card.querySelector('.post-title').textContent = title;
+        card.querySelector('.excerpt').textContent = excerpt || 'Без описания';
+        return true;
+      } catch(e) { return false; }
+    };
 
-      const card = document.createElement('a');
-      card.className = 'post-card';
-      // Важно: убедись, что post.html лежит в той же папке, что и index.html
-      card.href = `post.html?p=${encodeURIComponent(slug)}`; 
-      
-      card.innerHTML = `
-        <div class="post-header">
-          ${dateISO ? `<span class="post-date">${formatDate(dateISO)}</span>` : ''}
-          <h2 class="post-title">${escapeHtml(slug.replace(/-/g, ' '))}</h2>
-        </div>
-        <p class="post-excerpt">Загрузка превью...</p>
-        <span class="read-more">Читать далее <span class="arrow">→</span></span>`;
-
-      setTimeout(() => card.classList.add('visible'), 50 * index);
-      
-      card.addEventListener('click', function(e) {
-          const rect = card.getBoundingClientRect();
-          const ripple = document.createElement('span');
-          ripple.className = 'ripple';
-          const size = Math.max(rect.width, rect.height);
-          ripple.style.width = ripple.style.height = size + 'px';
-          ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-          ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-          card.appendChild(ripple);
-          setTimeout(() => ripple.remove(), 650);
-      });
-
-      listEl.appendChild(card);
-
-      // Загрузка текста
-      const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${usedPath}/${file.name}`;
-      
-      fetch(rawUrl)
-          .then(res => res.text())
-          .then(text => {
-              const title = extractTitle(text);
-              const excerpt = makeExcerpt(text);
-              if (title) card.querySelector('.post-title').textContent = title;
-              card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
-          })
-          .catch(() => {
-              // Пробуем master ветку
-              fetch(rawUrl.replace('/main/', '/master/'))
-                  .then(res => res.text())
-                  .then(text => {
-                      const title = extractTitle(text);
-                      const excerpt = makeExcerpt(text);
-                      if (title) card.querySelector('.post-title').textContent = title;
-                      card.querySelector('.post-excerpt').textContent = excerpt || 'Нет описания';
-                  });
-          });
+    // Пробуем main, если не вышло - master
+    tryLoadText(CONFIG.branch).then(success => {
+      if(!success) tryLoadText('master');
+    });
   });
 }
 
